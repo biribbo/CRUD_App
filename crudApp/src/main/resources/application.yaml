@@ -1,0 +1,10 @@
+spring:
+  h2.console:
+   enabled: true
+   path: "/console"
+  datasource:
+    url: jdbc:h2:file:\Users\Barbara\crudApp\crudApp\todo-db
+    driverClassName: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
