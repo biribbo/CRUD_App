@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Entity
+@Table
 public class Comment {
     @Id
     private int id;
@@ -47,5 +48,14 @@ public class Comment {
     void PrePersist() {
         creationDate = LocalDateTime.now();
         isDeleted = false;
+        product.addComment(this);
+    }
+
+    public void addCommentToProduct() {
+        product.addComment(this);
+    }
+
+    public void remove() {
+        isDeleted = true;
     }
 }

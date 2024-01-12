@@ -1,5 +1,6 @@
 package com.example.crudApp.controller;
 
+import com.example.crudApp.model.Comment;
 import com.example.crudApp.model.Product;
 import com.example.crudApp.model.ProductRepository;
 import jakarta.validation.Valid;
@@ -52,4 +53,12 @@ public class ProductController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    //@PostMapping(path = "/products/{id}")
+    //ResponseEntity<Product> CreateProduct(@RequestBody @Valid Comment toCreate, @PathVariable int id) {
+        //Optional<Product> toComment = repository.findById(id);
+        //Product toCommentProd = toComment.get();
+
+        // TODO: forward to Comment controller
+    //}
 }
