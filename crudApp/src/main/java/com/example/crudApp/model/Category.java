@@ -12,7 +12,7 @@ public class Category {
     private int id;
     @NotBlank
     private String name;
-    @OneToMany(targetEntity = Product.class)
+    @OneToMany(mappedBy = "category")
     Set<Product> products;
     private boolean isDeleted;
 

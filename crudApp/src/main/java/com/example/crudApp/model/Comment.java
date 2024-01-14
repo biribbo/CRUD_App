@@ -10,7 +10,7 @@ public class Comment {
     @Id
     private int id;
     @ManyToOne
-    @JoinColumn(name = "product_id")
+    @JoinColumn
     private Product product;
     @NotBlank
     private String description;
@@ -34,6 +34,10 @@ public class Comment {
     public Product getProduct() {
         return product;
     }
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
     public LocalDateTime getCreationDate() {
         return creationDate;
     }
@@ -44,15 +48,16 @@ public class Comment {
         return creatorUserId;
     }
 
+    public Comment() {}
+    public Comment(String description, Product product) {
+        this.description = description;
+        this.product = product;
+    }
+
     @PrePersist
     void PrePersist() {
         creationDate = LocalDateTime.now();
         isDeleted = false;
-        product.addComment(this);
-    }
-
-    public void addCommentToProduct() {
-        product.addComment(this);
     }
 
     public void remove() {

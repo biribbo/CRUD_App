@@ -1,9 +1,13 @@
 package com.example.crudApp.controller;
 
+import com.example.crudApp.logic.ProductService;
 import com.example.crudApp.model.Comment;
 import com.example.crudApp.model.Product;
 import com.example.crudApp.model.ProductRepository;
+import com.example.crudApp.model.projections.ProductReadModel;
+import com.example.crudApp.model.projections.ProductWriteModel;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
@@ -12,46 +16,44 @@ import java.util.Optional;
 
 @RestController
 public class ProductController {
-    final private ProductRepository repository;
+    final private ProductService service;
 
-    public ProductController(ProductRepository repository) {
-        this.repository = repository;
+    @Autowired
+    public ProductController(ProductService service) {
+        this.service = service;
     }
 
     @GetMapping(path = "/products", params = {"!sort", "!page", "!size"})
-    ResponseEntity<List<Product>> readAll() {
-        return ResponseEntity.ok(repository.findAllByIsDeletedIsFalse());
+    ResponseEntity<List<ProductReadModel>> readAll() {
+        List<ProductReadModel> products = service.readAll();
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping(path = "/allproducts", params = {"!sort", "!page", "!size"})
-    ResponseEntity<List<Product>> readAllWithDeleted() {
-        return ResponseEntity.ok(repository.findAll());
+    ResponseEntity<List<ProductReadModel>> readAllWithDeleted() {
+        List<ProductReadModel> products = service.readAllWithDeleted();
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping(path = "/products/{id}")
-    ResponseEntity<Product> readSingleProduct(@PathVariable int id) {
-        return repository.findById(id)
-                .map(product -> ResponseEntity.ok().body(product))
-                .orElse(ResponseEntity.notFound().build());
+    ResponseEntity<ProductReadModel> readSingleProduct(@PathVariable int id) {
+        ProductReadModel product = service.readSingleProduct(id);
+        return product != null
+                ? ResponseEntity.ok(product)
+                : ResponseEntity.notFound().build();
     }
 
     @PostMapping(path = "/products")
-    ResponseEntity<Product> CreateProduct(@RequestBody @Valid Product toCreate) {
-        Product newProduct = repository.save(toCreate);
-        return ResponseEntity.created(URI.create("/" + newProduct.getId())).body(newProduct);
+    ResponseEntity<ProductReadModel> CreateProduct(@RequestBody @Valid ProductWriteModel toCreate) {
+        Product createdProduct = service.createProduct(toCreate);
+        ProductReadModel responseModel = new ProductReadModel(createdProduct);
+        return ResponseEntity.created(URI.create("/products/" + createdProduct.getId())).body(responseModel);
     }
 
     @DeleteMapping(path = "/products/{id}")
     ResponseEntity<?> DeleteProduct(@PathVariable int id) {
-        Optional<Product> toDelete = repository.findById(id);
-        if (toDelete.isPresent()) {
-            Product toDeleteProd = toDelete.get();
-            repository.delete(toDeleteProd);
-            List<Product> remainingProducts = repository.findAllByIsDeletedIsFalse();
-            return ResponseEntity.ok(remainingProducts);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        service.deleteProduct(id);
+        return ResponseEntity.ok().build();
     }
 
     //@PostMapping(path = "/products/{id}")

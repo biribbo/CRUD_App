@@ -20,9 +20,9 @@ public class Product {
     private int creatorUserId;
     private boolean isDeleted;
     private String imageUrl;
-    @OneToMany(mappedBy = "product_id")
+    @OneToMany(mappedBy = "product")
     private Set<Comment> comments;
-    @ManyToOne(targetEntity = Category.class)
+    @ManyToOne
     @NotNull
     private Category category;
 
@@ -94,8 +94,11 @@ public class Product {
         category.addProduct(this);
     }
 
-    public void delete (Product product) {
-        product.isDeleted = true;
+    public void delete () {
+        isDeleted = true;
+        for (Comment comment : comments) {
+            comment.remove();
+        }
     }
 
     public void update (Product source) {
@@ -107,9 +110,5 @@ public class Product {
         this.description = source.description;
         this.imageUrl = source.imageUrl;
         this.category = source.category;
-    }
-
-    public void addComment (Comment comment) {
-        comments.add(comment);
     }
 }
