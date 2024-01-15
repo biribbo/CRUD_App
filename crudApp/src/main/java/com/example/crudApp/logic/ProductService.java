@@ -1,13 +1,15 @@
 package com.example.crudApp.logic;
 
+import com.example.crudApp.model.Category;
 import com.example.crudApp.model.Comment;
 import com.example.crudApp.model.Product;
 import com.example.crudApp.model.ProductRepository;
-import com.example.crudApp.model.projections.CommentReadModel;
 import com.example.crudApp.model.projections.CommentWriteModel;
 import com.example.crudApp.model.projections.ProductReadModel;
 import com.example.crudApp.model.projections.ProductWriteModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
+    public static final int PAGE_SIZE = 10;
     private final ProductRepository productRepository;
 
     @Autowired
@@ -22,15 +25,22 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public List<ProductReadModel> readAll() {
-        List<Product> products = productRepository.findAllByIsDeletedIsFalse();
+    public List<ProductReadModel> readAll(int page) {
+        List<Product> products = productRepository.findAllByIsDeletedIsFalse(PageRequest.of(page, PAGE_SIZE));
         return products.stream()
                 .map(ProductReadModel::new)
                 .collect(Collectors.toList());
     }
 
-    public List<ProductReadModel> readAllWithDeleted() {
-        List<Product> products = productRepository.findAll();
+    public List<ProductReadModel> readAllWithDeleted(int page) {
+        Page<Product> products = productRepository.findAll(PageRequest.of(page, PAGE_SIZE));
+        return products.stream()
+                .map(ProductReadModel::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductReadModel> readAllFromCategory(Category category, int page) {
+        List<Product> products = productRepository.findAllByCategory(category, PageRequest.of(page, PAGE_SIZE));
         return products.stream()
                 .map(ProductReadModel::new)
                 .collect(Collectors.toList());
@@ -42,9 +52,10 @@ public class ProductService {
                 .orElse(null);
     }
 
-    public Product createProduct(ProductWriteModel toCreate) {
+    public ProductReadModel createProduct(ProductWriteModel toCreate) {
         Product newProduct = toCreate.toProduct();
-        return productRepository.save(newProduct);
+        productRepository.save(newProduct);
+        return new ProductReadModel(newProduct);
     }
 
     public void deleteProduct(int id) {

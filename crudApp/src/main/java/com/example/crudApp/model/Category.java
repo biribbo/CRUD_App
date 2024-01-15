@@ -2,38 +2,38 @@ package com.example.crudApp.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+
 import java.util.Set;
 
 @Entity
 @Table
+@Getter
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @NotBlank
     private String name;
-    @OneToMany(mappedBy = "category")
+    @ManyToMany
     Set<Product> products;
     private boolean isDeleted;
 
-    public int getId() {
-        return id;
-    }
     void setId(int id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
     }
     void setName(String name) {
         this.name = name;
     }
-
-    public Set<Product> getProducts() {
-        return products;
-    }
     void setProducts(Set<Product> products) {
+        this.products = products;
+    }
+
+    public Category() {
+    }
+
+    public Category(String name, Set<Product> products) {
+        this.name = name;
         this.products = products;
     }
 
@@ -44,8 +44,17 @@ public class Category {
 
     public void addProduct(Product product) {
         products.add(product);
+        product.getCategories().add(this);
     }
     public void removeProduct (Product product) {
         products.remove(product);
+        product.getCategories().remove(this);
+    }
+    public void delete() {
+        isDeleted = true;
+    }
+    public void Update(Category source) {
+        this.name = source.getName();
+        this.products = source.getProducts();
     }
 }

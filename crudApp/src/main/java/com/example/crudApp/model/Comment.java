@@ -63,4 +63,11 @@ public class Comment {
     public void remove() {
         isDeleted = true;
     }
+
+    public void update(Comment source) {
+        if (this.product != source.product) {
+            throw new IllegalStateException("Existing comment can't be assigned to another product.");
+        }
+        this.description = source.description;
+    }
 }

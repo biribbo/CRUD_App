@@ -3,9 +3,13 @@ import com.example.crudApp.model.Category;
 import com.example.crudApp.model.Comment;
 import com.example.crudApp.model.Product;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Set;
 
+@Getter
+@Setter
 public class ProductWriteModel {
     @NotBlank
     private String title;
@@ -13,44 +17,9 @@ public class ProductWriteModel {
     private String description;
     private String imageUrl;
     private Set<Comment> comments;
-    private Category category;
-
-    public String getTitle() {
-        return title;
-    }
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public Set<Comment> getComments() {
-        return comments;
-    }
-    public void setComments(Set<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-    public void setCategory(Category category) {
-        this.category = category;
-    }
+    private Set<Category> categories;
 
     public Product toProduct() {
-        return new Product(title, description, imageUrl, comments, category);
+        return new Product(title, description, imageUrl, comments, categories);
     }
 }

@@ -18,7 +18,9 @@ public class CommentWriteModel {
         return product;
     }
     public void setProduct(Product product) {
-        this.product = product;
+        if (this.product == null) {
+            this.product = product;
+        }
     }
 
     public Comment toComment() {

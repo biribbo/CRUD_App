@@ -1,7 +1,6 @@
 package com.example.crudApp.controller;
 
 import com.example.crudApp.logic.CommentService;
-import com.example.crudApp.logic.ProductService;
 import com.example.crudApp.model.projections.CommentReadModel;
 import com.example.crudApp.model.projections.CommentWriteModel;
 import jakarta.validation.Valid;
@@ -17,13 +16,20 @@ public class CommentController {
     private final CommentService service;
 
     @Autowired
-    public CommentController(CommentService service, ProductService productService) {
+    public CommentController(CommentService service) {
         this.service = service;
     }
 
     @GetMapping(path = "/products/{id}/comments")
-    public ResponseEntity<List<CommentReadModel>> readAllComments(@PathVariable int id) {
-        List<CommentReadModel> comments = service.getAllCommentsFromProduct(id);
+    public ResponseEntity<List<CommentReadModel>> readAllComments(@PathVariable int id, @RequestParam int page) {
+        List<CommentReadModel> comments = service.getAllCommentsFromProduct(id, page);
+        return ResponseEntity.ok(comments);
+    }
+
+    @GetMapping(path = "/products/{id}/allcomments")
+    public ResponseEntity<List<CommentReadModel>> readAllCommentsWithDeleted(@PathVariable int id) {
+        //TODO: page
+        List<CommentReadModel> comments = service.getAllCommentsFromProductWithDeleted(id);
         return ResponseEntity.ok(comments);
     }
 
@@ -45,5 +51,13 @@ public class CommentController {
     public ResponseEntity<?> deleteComment(@PathVariable int cId, @PathVariable int pId) {
         service.deleteComment(cId);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(path = "/products/{pId}/comments/{cId}")
+    public ResponseEntity<CommentReadModel> updateComment(@PathVariable int cId, @PathVariable int pId, @RequestBody @Valid CommentWriteModel toUpdate) {
+        CommentReadModel updatedComment = service.updateCooment(toUpdate, cId, pId);
+        return updatedComment != null
+                ? ResponseEntity.ok(updatedComment)
+                : ResponseEntity.notFound().build();
     }
 }

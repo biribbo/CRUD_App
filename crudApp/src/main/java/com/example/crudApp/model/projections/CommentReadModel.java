@@ -1,8 +1,11 @@
 package com.example.crudApp.model.projections;
 
 import com.example.crudApp.model.Comment;
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 
+@Getter
 public class CommentReadModel {
     private int id;
     private ProductReadModel product;
@@ -18,29 +21,5 @@ public class CommentReadModel {
         this.creationDate = source.getCreationDate();
         this.isDeleted = source.isDeleted();
         this.creatorUserId = source.getCreatorUserId();
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public ProductReadModel getProduct() {
-        return product;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public LocalDateTime getCreationDate() {
-        return creationDate;
-    }
-
-    public boolean isDeleted() {
-        return isDeleted;
-    }
-
-    public int getCreatorUserId() {
-        return creatorUserId;
     }
 }

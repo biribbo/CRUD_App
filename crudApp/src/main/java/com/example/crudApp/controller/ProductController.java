@@ -1,7 +1,6 @@
 package com.example.crudApp.controller;
 
 import com.example.crudApp.logic.ProductService;
-import com.example.crudApp.model.Product;
 import com.example.crudApp.model.projections.ProductReadModel;
 import com.example.crudApp.model.projections.ProductWriteModel;
 import jakarta.validation.Valid;
@@ -20,15 +19,15 @@ public class ProductController {
         this.service = service;
     }
 
-    @GetMapping(path = "/products", params = {"!sort", "!page", "!size"})
-    ResponseEntity<List<ProductReadModel>> readAll() {
-        List<ProductReadModel> products = service.readAll();
+    @GetMapping(path = "/products")
+    ResponseEntity<List<ProductReadModel>> readAll(@RequestParam int page) {
+        List<ProductReadModel> products = service.readAll(page);
         return ResponseEntity.ok(products);
     }
 
-    @GetMapping(path = "/allproducts", params = {"!sort", "!page", "!size"})
-    ResponseEntity<List<ProductReadModel>> readAllWithDeleted() {
-        List<ProductReadModel> products = service.readAllWithDeleted();
+    @GetMapping(path = "/allproducts")
+    ResponseEntity<List<ProductReadModel>> readAllWithDeleted(@RequestParam int page) {
+        List<ProductReadModel> products = service.readAllWithDeleted(page);
         return ResponseEntity.ok(products);
     }
 
@@ -42,9 +41,8 @@ public class ProductController {
 
     @PostMapping(path = "/products")
     ResponseEntity<ProductReadModel> CreateProduct(@RequestBody @Valid ProductWriteModel toCreate) {
-        Product createdProduct = service.createProduct(toCreate);
-        ProductReadModel responseModel = new ProductReadModel(createdProduct);
-        return ResponseEntity.created(URI.create("/products/" + createdProduct.getId())).body(responseModel);
+        ProductReadModel createdProduct = service.createProduct(toCreate);
+        return ResponseEntity.created(URI.create("/products/" + createdProduct.getId())).body(createdProduct);
     }
 
     @DeleteMapping(path = "/products/{id}")
