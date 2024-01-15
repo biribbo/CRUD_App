@@ -1,9 +1,7 @@
 package com.example.crudApp.controller;
 
 import com.example.crudApp.logic.ProductService;
-import com.example.crudApp.model.Comment;
 import com.example.crudApp.model.Product;
-import com.example.crudApp.model.ProductRepository;
 import com.example.crudApp.model.projections.ProductReadModel;
 import com.example.crudApp.model.projections.ProductWriteModel;
 import jakarta.validation.Valid;
@@ -12,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class ProductController {
@@ -56,11 +53,11 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
-    //@PostMapping(path = "/products/{id}")
-    //ResponseEntity<Product> CreateProduct(@RequestBody @Valid Comment toCreate, @PathVariable int id) {
-        //Optional<Product> toComment = repository.findById(id);
-        //Product toCommentProd = toComment.get();
-
-        // TODO: forward to Comment controller
-    //}
+    @PutMapping(path = "/products/{id}")
+    ResponseEntity<ProductReadModel> UpdateProduct(@RequestBody @Valid ProductWriteModel toUpdate, @PathVariable int id) {
+        ProductReadModel product = service.updateProduct(toUpdate, id);
+        return product != null
+                ? ResponseEntity.ok(product)
+                : ResponseEntity.notFound().build();
+    }
 }

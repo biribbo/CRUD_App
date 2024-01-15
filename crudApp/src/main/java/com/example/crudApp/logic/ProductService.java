@@ -3,6 +3,7 @@ package com.example.crudApp.logic;
 import com.example.crudApp.model.Comment;
 import com.example.crudApp.model.Product;
 import com.example.crudApp.model.ProductRepository;
+import com.example.crudApp.model.projections.CommentReadModel;
 import com.example.crudApp.model.projections.CommentWriteModel;
 import com.example.crudApp.model.projections.ProductReadModel;
 import com.example.crudApp.model.projections.ProductWriteModel;
@@ -56,5 +57,26 @@ public class ProductService {
 
     public void assignComment(CommentWriteModel comment, int id) {
         productRepository.findById(id).ifPresent(comment::setProduct);
+    }
+
+    public void addCommentToSet(Comment comment, int id) {
+        Product product = productRepository.findById(id)
+                .orElse(null);
+        assert product != null;
+        product.addComment(comment);
+        productRepository.save(product);
+    }
+
+    public ProductReadModel updateProduct(ProductWriteModel product, int id) {
+        //TODO: if category does not exist
+        Product source = product.toProduct();
+        Product destination = productRepository.findById(id)
+                .orElse(null);
+        if (destination == null) {
+            return null;
+        }
+        destination.update(source);
+        productRepository.save(destination);
+        return new ProductReadModel(destination);
     }
 }

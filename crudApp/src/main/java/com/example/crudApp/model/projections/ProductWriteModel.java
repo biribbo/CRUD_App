@@ -2,10 +2,14 @@ package com.example.crudApp.model.projections;
 import com.example.crudApp.model.Category;
 import com.example.crudApp.model.Comment;
 import com.example.crudApp.model.Product;
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.Set;
 
 public class ProductWriteModel {
+    @NotBlank
     private String title;
+    @NotBlank
     private String description;
     private String imageUrl;
     private Set<Comment> comments;

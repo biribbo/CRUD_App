@@ -94,6 +94,10 @@ public class Product {
         category.addProduct(this);
     }
 
+    public void addComment(Comment comment) {
+        comments.add(comment);
+    }
+
     public void delete () {
         isDeleted = true;
         for (Comment comment : comments) {

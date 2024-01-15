@@ -50,6 +50,7 @@ public class CommentService {
         productService.assignComment(comment, id);
         Comment newComment = comment.toComment();
         repository.save(newComment);
+        productService.addCommentToSet(newComment, id);
         return new CommentReadModel(newComment);
     }
 
