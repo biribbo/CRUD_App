@@ -1,8 +1,8 @@
 package com.example.crudApp.controller;
 
 import com.example.crudApp.logic.CommentService;
-import com.example.crudApp.model.projections.CommentReadModel;
-import com.example.crudApp.model.projections.CommentWriteModel;
+import com.example.crudApp.dto.CommentReadModel;
+import com.example.crudApp.dto.CommentWriteModel;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -1,8 +1,8 @@
 package com.example.crudApp.controller;
 
 import com.example.crudApp.logic.ProductService;
-import com.example.crudApp.model.projections.ProductReadModel;
-import com.example.crudApp.model.projections.ProductWriteModel;
+import com.example.crudApp.dto.ProductReadModel;
+import com.example.crudApp.dto.ProductWriteModel;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

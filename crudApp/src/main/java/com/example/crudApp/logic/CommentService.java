@@ -1,10 +1,10 @@
 package com.example.crudApp.logic;
 
 import com.example.crudApp.model.Comment;
-import com.example.crudApp.model.CommentRepository;
-import com.example.crudApp.model.projections.CommentReadModel;
-import com.example.crudApp.model.projections.CommentWriteModel;
-import com.example.crudApp.model.projections.ProductReadModel;
+import com.example.crudApp.repository.CommentRepository;
+import com.example.crudApp.dto.CommentReadModel;
+import com.example.crudApp.dto.CommentWriteModel;
+import com.example.crudApp.dto.ProductReadModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;

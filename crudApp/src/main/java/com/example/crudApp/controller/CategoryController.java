@@ -1,9 +1,9 @@
 package com.example.crudApp.controller;
 
 import com.example.crudApp.logic.CategoryService;
-import com.example.crudApp.model.projections.CategoryReadModel;
-import com.example.crudApp.model.projections.CategoryWriteModel;
-import com.example.crudApp.model.projections.ProductReadModel;
+import com.example.crudApp.dto.CategoryReadModel;
+import com.example.crudApp.dto.CategoryWriteModel;
+import com.example.crudApp.dto.ProductReadModel;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

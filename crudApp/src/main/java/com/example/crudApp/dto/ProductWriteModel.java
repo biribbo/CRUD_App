@@ -1,4 +1,4 @@
-package com.example.crudApp.model.projections;
+package com.example.crudApp.dto;
 import com.example.crudApp.model.Category;
 import com.example.crudApp.model.Comment;
 import com.example.crudApp.model.Product;

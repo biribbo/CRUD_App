@@ -1,10 +1,10 @@
 package com.example.crudApp.logic;
 
 import com.example.crudApp.model.Category;
-import com.example.crudApp.model.CategoryRepository;
-import com.example.crudApp.model.projections.CategoryReadModel;
-import com.example.crudApp.model.projections.CategoryWriteModel;
-import com.example.crudApp.model.projections.ProductReadModel;
+import com.example.crudApp.repository.CategoryRepository;
+import com.example.crudApp.dto.CategoryReadModel;
+import com.example.crudApp.dto.CategoryWriteModel;
+import com.example.crudApp.dto.ProductReadModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
