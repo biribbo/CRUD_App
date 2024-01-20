@@ -1,6 +1,7 @@
 package com.example.crudApp.logic;
 
 import com.example.crudApp.model.Comment;
+import com.example.crudApp.model.Product;
 import com.example.crudApp.repository.CommentRepository;
 import com.example.crudApp.dto.CommentReadModel;
 import com.example.crudApp.dto.CommentWriteModel;
@@ -8,6 +9,7 @@ import com.example.crudApp.dto.ProductReadModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,25 +27,22 @@ public class CommentService {
     }
 
     public List<CommentReadModel> getAllCommentsFromProduct(int id, int page) {
-        ProductReadModel product = productService.readSingleProduct(id);
+        Product product = productService.getAllCommentsFromProduct(id);
         if (product == null) {
             return null;
         }
-        Set<Comment> s1 = new HashSet<>(repository.findAllByDeletedIsFalse(PageRequest.of(page, PAGE_SIZE)));
-        Set<Comment> s2 = product.getComments();
-        s2.retainAll(s1);
-        List<Comment> comments = new ArrayList<>(s2);
+        List<Comment> comments = repository.findAllByIsDeletedIsFalseAndProduct(PageRequest.of(page, PAGE_SIZE), product);
         return comments.stream()
                 .map(CommentReadModel::new)
                 .collect(Collectors.toList());
     }
 
-    public List<CommentReadModel> getAllCommentsFromProductWithDeleted(int id) {
-        ProductReadModel product = productService.readSingleProduct(id);
-        if (product == null) {
+    public List<CommentReadModel> getAllCommentsFromProductWithDeleted(int id, int page) {
+        Product gotProduct = productService.getAllCommentsFromProduct(id);
+        if (gotProduct == null) {
             return null;
         }
-        List<Comment> comments = new ArrayList<>(product.getComments());
+        List<Comment> comments = repository.findAllByProduct(PageRequest.of(page, PAGE_SIZE), gotProduct);
         return comments.stream()
                 .map(CommentReadModel::new)
                 .collect(Collectors.toList());
@@ -58,11 +57,16 @@ public class CommentService {
                 .orElse(null);
     }
 
-    public CommentReadModel createComment(CommentWriteModel comment, int id) {
-        productService.assignComment(comment, id);
+    public CommentReadModel createComment(CommentWriteModel comment, int pid) {
         Comment newComment = comment.toComment();
         repository.save(newComment);
-        productService.addCommentToSet(newComment, id);
+        try {
+            productService.addCommentToSet(newComment, pid);
+            repository.save(newComment);
+        } catch (NullPointerException e) {
+            e.getMessage();
+            return null;
+        }
         return new CommentReadModel(newComment);
     }
 

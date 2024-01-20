@@ -2,10 +2,12 @@ package com.example.crudApp.dto;
 
 import com.example.crudApp.model.Comment;
 import com.example.crudApp.model.Product;
+import jakarta.validation.constraints.NotBlank;
 
 public class CommentWriteModel {
+    @NotBlank
     private String description;
-    private Product product;
+    //private Product product;
 
     public String getDescription() {
         return description;
@@ -14,16 +16,16 @@ public class CommentWriteModel {
         this.description = description;
     }
 
-    public Product getProduct() {
+    /*public Product getProduct() {
         return product;
     }
     public void setProduct(Product product) {
         if (this.product == null) {
             this.product = product;
         }
-    }
+    }*/
 
     public Comment toComment() {
-        return new Comment(description, product);
+        return new Comment(description);
     }
 }

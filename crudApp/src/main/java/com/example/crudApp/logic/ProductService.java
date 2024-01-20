@@ -1,6 +1,5 @@
 package com.example.crudApp.logic;
 
-import com.example.crudApp.model.Category;
 import com.example.crudApp.model.Comment;
 import com.example.crudApp.model.Product;
 import com.example.crudApp.repository.ProductRepository;
@@ -11,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,13 +40,6 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public List<ProductReadModel> readAllFromCategory(Category category, int page) {
-        List<Product> products = productRepository.findAllByCategory(category, PageRequest.of(page, PAGE_SIZE));
-        return products.stream()
-                .map(ProductReadModel::new)
-                .collect(Collectors.toList());
-    }
-
     public ProductReadModel readSingleProduct(int id) {
         return productRepository.findById(id)
                 .map(ProductReadModel::new)
@@ -66,16 +60,20 @@ public class ProductService {
         });
     }
 
-    public void assignComment(CommentWriteModel comment, int id) {
+    /*public void assignComment(CommentWriteModel comment, int id) {
         productRepository.findById(id).ifPresent(comment::setProduct);
-    }
+    }*/
 
     public void addCommentToSet(Comment comment, int id) {
         Product product = productRepository.findById(id)
                 .orElse(null);
-        assert product != null;
-        product.addComment(comment);
-        productRepository.save(product);
+        if (product != null) {
+            productRepository.findById(id).ifPresent(comment::setProduct);
+            product.addComment(comment);
+            productRepository.save(product);
+        } else {
+            throw new NullPointerException("Product not found");
+        }
     }
 
     public ProductReadModel updateProduct(ProductWriteModel product, int id) {
@@ -89,5 +87,10 @@ public class ProductService {
         destination.update(source);
         productRepository.save(destination);
         return new ProductReadModel(destination);
+    }
+
+    public Product getAllCommentsFromProduct(int id) {
+        return productRepository.findById(id)
+                .orElse(null);
     }
 }

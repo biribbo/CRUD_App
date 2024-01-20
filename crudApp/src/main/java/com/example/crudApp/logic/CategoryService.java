@@ -1,6 +1,8 @@
 package com.example.crudApp.logic;
 
+//import com.example.crudApp.dto.ProductWriteModel;
 import com.example.crudApp.model.Category;
+import com.example.crudApp.model.Product;
 import com.example.crudApp.repository.CategoryRepository;
 import com.example.crudApp.dto.CategoryReadModel;
 import com.example.crudApp.dto.CategoryWriteModel;
@@ -10,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,16 +21,16 @@ public class CategoryService {
 
     public static final int PAGE_SIZE = 10;
     private final CategoryRepository repository;
-    private final ProductService productService;
+    //private final ProductService productService;
 
     @Autowired
-    public CategoryService(CategoryRepository repository, ProductService productService) {
+    public CategoryService(CategoryRepository repository /*, ProductService productService */) {
         this.repository = repository;
-        this.productService = productService;
+      //  this.productService = productService;
     }
 
     public List<CategoryReadModel> findAll(int page) {
-        List<Category> categories = repository.findAllByDeletedIsFalse(PageRequest.of(page, PAGE_SIZE));
+        List<Category> categories = repository.findAllByIsDeletedIsFalse(PageRequest.of(page, PAGE_SIZE));
         return categories.stream()
                 .map(CategoryReadModel::new)
                 .collect(Collectors.toList());
@@ -40,13 +43,16 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    public List<ProductReadModel> findById(int id, int page) {
+    public List<ProductReadModel> findById(int id) {
         Category category = repository.findById(id)
                 .orElse(null);
         if (category == null) {
             return null;
         }
-        return productService.readAllFromCategory(category, page);
+        List<Product> rawList = new ArrayList<>(category.getProducts());
+        return rawList.stream()
+                .map(ProductReadModel::new)
+                .collect(Collectors.toList());
     }
 
     public CategoryReadModel createCategory(CategoryWriteModel toCreate) {
@@ -56,7 +62,11 @@ public class CategoryService {
     }
 
     public void deleteCategory(int id) {
-        repository.findById(id).ifPresent(Category::delete);
+        repository.findById(id)
+                .ifPresent(category -> {
+                    category.delete();
+                    repository.save(category);
+                });
     }
 
     public CategoryReadModel updateCategory(CategoryWriteModel category, int id) {
@@ -70,4 +80,8 @@ public class CategoryService {
         repository.save(destination);
         return new CategoryReadModel(destination);
     }
+
+    //public ProductReadModel createProductInCategory(int id, ProductWriteModel tocreate) {
+      //  Product
+    //}
 }

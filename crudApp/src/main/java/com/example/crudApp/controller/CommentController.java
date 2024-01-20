@@ -27,9 +27,8 @@ public class CommentController {
     }
 
     @GetMapping(path = "/products/{id}/allcomments")
-    public ResponseEntity<List<CommentReadModel>> readAllCommentsWithDeleted(@PathVariable int id) {
-        //TODO: page
-        List<CommentReadModel> comments = service.getAllCommentsFromProductWithDeleted(id);
+    public ResponseEntity<List<CommentReadModel>> readAllCommentsWithDeleted(@PathVariable int id, @RequestParam int page) {
+        List<CommentReadModel> comments = service.getAllCommentsFromProductWithDeleted(id, page);
         return ResponseEntity.ok(comments);
     }
 
@@ -41,10 +40,10 @@ public class CommentController {
                 : ResponseEntity.notFound().build();
     }
 
-    @PostMapping(path = "/products/{id}/comments")
-    public ResponseEntity<CommentReadModel> createComment(@RequestBody @Valid CommentWriteModel toCreate, @PathVariable int id) {
-        CommentReadModel createdComment = service.createComment(toCreate, id);
-        return ResponseEntity.created(URI.create("/products/{id}/comments/" + createdComment.getId())).body(createdComment);
+    @PostMapping(path = "/products/{pid}/comments")
+    public ResponseEntity<CommentReadModel> createComment(@RequestBody @Valid CommentWriteModel toCreate, @PathVariable int pid) {
+        CommentReadModel createdComment = service.createComment(toCreate, pid);
+        return ResponseEntity.created(URI.create("/products/" + pid + "/comments/" + createdComment.getId())).body(createdComment);
     }
 
     @DeleteMapping(path = "/products/{pId}/comments/{cId}")

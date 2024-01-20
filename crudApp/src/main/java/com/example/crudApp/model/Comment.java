@@ -2,12 +2,16 @@ package com.example.crudApp.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table
+@Getter
 public class Comment {
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
     @ManyToOne
     @JoinColumn
@@ -18,40 +22,25 @@ public class Comment {
     private boolean isDeleted;
     private int creatorUserId;
 
-    public int getId() {
-        return id;
-    }
     void setId(int id) {
         this.id = id;
     }
-    public String getDescription() {
-        return description;
-    }
+
     void setDescription(String description) {
         this.description = description;
     }
 
-    public Product getProduct() {
-        return product;
-    }
     public void setProduct(Product product) {
         this.product = product;
     }
 
-    public LocalDateTime getCreationDate() {
-        return creationDate;
-    }
     public boolean isDeleted() {
         return isDeleted;
     }
-    public int getCreatorUserId() {
-        return creatorUserId;
-    }
 
     public Comment() {}
-    public Comment(String description, Product product) {
+    public Comment(String description) {
         this.description = description;
-        this.product = product;
     }
 
     @PrePersist

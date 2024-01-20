@@ -14,7 +14,6 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Integer> {
     Page<Product> findAll(Pageable page);
     List<Product> findAllByIsDeletedIsFalse(Pageable page);
-    List<Product> findAllByCategory(Category category, Pageable page);
     Product save(Product entity);
     Optional<Product> findById(Integer id);
 }

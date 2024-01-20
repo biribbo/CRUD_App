@@ -13,9 +13,8 @@ import java.util.Set;
 public class CategoryWriteModel {
     @NotBlank
     private String name;
-    Set<Product> products;
 
     public Category toCategory() {
-        return new Category(name, products);
+        return new Category(name);
     }
 }

@@ -3,7 +3,7 @@ spring:
    enabled: true
    path: "/console"
   datasource:
-    url: jdbc:h2:file:\Users\rataj\crud_backend\todo-db
+    url: jdbc:h2:file:\Users\Barbara\crudApp\crudApp\todo-db.mv.db
     driverClassName: org.h2.Driver
   jpa:
     hibernate:

@@ -11,6 +11,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
+@RequestMapping("/products")
 public class ProductController {
     final private ProductService service;
 
@@ -19,19 +20,19 @@ public class ProductController {
         this.service = service;
     }
 
-    @GetMapping(path = "/products")
+    @GetMapping
     ResponseEntity<List<ProductReadModel>> readAll(@RequestParam int page) {
         List<ProductReadModel> products = service.readAll(page);
         return ResponseEntity.ok(products);
     }
 
-    @GetMapping(path = "/allproducts")
+    @GetMapping(path = "/all")
     ResponseEntity<List<ProductReadModel>> readAllWithDeleted(@RequestParam int page) {
         List<ProductReadModel> products = service.readAllWithDeleted(page);
         return ResponseEntity.ok(products);
     }
 
-    @GetMapping(path = "/products/{id}")
+    @GetMapping(path = "/{id}")
     ResponseEntity<ProductReadModel> readSingleProduct(@PathVariable int id) {
         ProductReadModel product = service.readSingleProduct(id);
         return product != null
@@ -39,19 +40,21 @@ public class ProductController {
                 : ResponseEntity.notFound().build();
     }
 
-    @PostMapping(path = "/products")
+    
+
+    @PostMapping
     ResponseEntity<ProductReadModel> CreateProduct(@RequestBody @Valid ProductWriteModel toCreate) {
         ProductReadModel createdProduct = service.createProduct(toCreate);
         return ResponseEntity.created(URI.create("/products/" + createdProduct.getId())).body(createdProduct);
     }
 
-    @DeleteMapping(path = "/products/{id}")
+    @DeleteMapping(path = "/{id}")
     ResponseEntity<?> DeleteProduct(@PathVariable int id) {
         service.deleteProduct(id);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping(path = "/products/{id}")
+    @PutMapping(path = "/{id}")
     ResponseEntity<ProductReadModel> UpdateProduct(@RequestBody @Valid ProductWriteModel toUpdate, @PathVariable int id) {
         ProductReadModel product = service.updateProduct(toUpdate, id);
         return product != null

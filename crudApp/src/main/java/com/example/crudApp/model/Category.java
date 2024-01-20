@@ -32,9 +32,8 @@ public class Category {
     public Category() {
     }
 
-    public Category(String name, Set<Product> products) {
+    public Category(String name) {
         this.name = name;
-        this.products = products;
     }
 
     @PrePersist
@@ -51,10 +50,9 @@ public class Category {
         product.getCategories().remove(this);
     }
     public void delete() {
-        isDeleted = true;
+        this.isDeleted = true;
     }
     public void Update(Category source) {
         this.name = source.getName();
-        this.products = source.getProducts();
     }
 }

@@ -26,7 +26,6 @@ public class Product {
     @OneToMany(mappedBy = "product")
     private Set<Comment> comments;
     @ManyToMany
-    @NotNull
     private Set<Category> categories;
 
     void setId(int id) {
@@ -54,12 +53,10 @@ public class Product {
     }
 
     public Product() {}
-    public Product(String title, String description, String imageUrl, Set<Comment> comments, Set<Category> categories) {
+    public Product(String title, String description, String imageUrl) {
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
-        this.comments = comments;
-        this.categories = categories;
     }
 
     @PrePersist

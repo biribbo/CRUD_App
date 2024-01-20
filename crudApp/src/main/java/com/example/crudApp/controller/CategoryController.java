@@ -8,11 +8,11 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.net.URI;
 import java.util.List;
 
 @RestController
+@RequestMapping(path = "/categories")
 public class CategoryController {
     private final CategoryService service;
 
@@ -21,34 +21,34 @@ public class CategoryController {
         this.service = service;
     }
 
-    @GetMapping(path = "/categories")
+    @GetMapping
     ResponseEntity<List<CategoryReadModel>> readAll(@RequestParam int page) {
         return ResponseEntity.ok(service.findAll(page));
     }
 
-    @GetMapping(path = "/allcategories")
+    @GetMapping(path = "/all")
     ResponseEntity<List<CategoryReadModel>> readAllWithDeleted(@RequestParam int page) {
         return ResponseEntity.ok(service.finAllWithDeleted(page));
     }
 
-    @GetMapping(path = "/categories/{id}")
-    ResponseEntity<List<ProductReadModel>> readProductsFromCategory(@PathVariable int id, @RequestParam int page) {
-        return ResponseEntity.ok(service.findById(id, page));
+    @GetMapping(path = "/{id}")
+    ResponseEntity<List<ProductReadModel>> readProductsFromCategory(@PathVariable int id) {
+        return ResponseEntity.ok(service.findById(id));
     }
 
-    @PostMapping(path = "/categories")
+    @PostMapping
     ResponseEntity<CategoryReadModel> CreateCategory(@RequestBody @Valid CategoryWriteModel toCreate) {
         CategoryReadModel createdCategory = service.createCategory(toCreate);
         return ResponseEntity.created(URI.create("/products/" + createdCategory.getId())).body(createdCategory);
     }
 
-    @DeleteMapping(path = "/categories/{id}")
+    @DeleteMapping(path = "/{id}")
     ResponseEntity<?> DeleteCategory(@PathVariable int id) {
         service.deleteCategory(id);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping(path = "/categories/{id}")
+    @PutMapping(path = "/{id}")
     ResponseEntity<CategoryReadModel> UpdateProduct(@RequestBody @Valid CategoryWriteModel toUpdate, @PathVariable int id) {
         CategoryReadModel category = service.updateCategory(toUpdate, id);
         return category != null
