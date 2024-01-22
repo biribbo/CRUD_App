@@ -69,7 +69,28 @@ class _IndexPageState extends State<IndexPage> {
         title: const Text("Listing Products", style: TextStyle(color: white)),
         backgroundColor: primary,
       ),
-      body: getBody()
+    body: Stack(
+      children: [
+        getBody(),
+        Positioned(
+          bottom: 16.0,
+          right: 16.0,
+          child: ClipOval(
+            child: ElevatedButton(
+              onPressed: () {
+                // Add your action for the button here
+              },
+              style: ElevatedButton.styleFrom(
+                shape: CircleBorder(),
+                backgroundColor: Colors.blue, // Makes the button circular
+                padding: EdgeInsets.all(16.0),
+                ),
+              child: Icon(Icons.add, color: Colors.white),
+            ),
+          ),
+        )
+      ],
+    ),
     );
   }
 
