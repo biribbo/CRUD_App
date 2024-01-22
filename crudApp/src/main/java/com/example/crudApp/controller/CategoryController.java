@@ -4,6 +4,7 @@ import com.example.crudApp.logic.CategoryService;
 import com.example.crudApp.dto.CategoryReadModel;
 import com.example.crudApp.dto.CategoryWriteModel;
 import com.example.crudApp.dto.ProductReadModel;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,33 +23,39 @@ public class CategoryController {
     }
 
     @GetMapping
+    //@RolesAllowed({"ADMIN", "USER"})
     ResponseEntity<List<CategoryReadModel>> readAll(@RequestParam int page) {
         return ResponseEntity.ok(service.findAll(page));
     }
 
     @GetMapping(path = "/all")
+    //@RolesAllowed({"ADMIN", "USER"})
     ResponseEntity<List<CategoryReadModel>> readAllWithDeleted(@RequestParam int page) {
         return ResponseEntity.ok(service.finAllWithDeleted(page));
     }
 
     @GetMapping(path = "/{id}")
+    //@RolesAllowed({"ADMIN", "USER"})
     ResponseEntity<List<ProductReadModel>> readProductsFromCategory(@PathVariable int id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
+    //@RolesAllowed({"ADMIN", "USER"})
     ResponseEntity<CategoryReadModel> CreateCategory(@RequestBody @Valid CategoryWriteModel toCreate) {
         CategoryReadModel createdCategory = service.createCategory(toCreate);
         return ResponseEntity.created(URI.create("/products/" + createdCategory.getId())).body(createdCategory);
     }
 
     @DeleteMapping(path = "/{id}")
+    //@RolesAllowed({"ADMIN"})
     ResponseEntity<?> DeleteCategory(@PathVariable int id) {
         service.deleteCategory(id);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping(path = "/{id}")
+    //@RolesAllowed({"ADMIN", "USER"})
     ResponseEntity<CategoryReadModel> UpdateProduct(@RequestBody @Valid CategoryWriteModel toUpdate, @PathVariable int id) {
         CategoryReadModel category = service.updateCategory(toUpdate, id);
         return category != null

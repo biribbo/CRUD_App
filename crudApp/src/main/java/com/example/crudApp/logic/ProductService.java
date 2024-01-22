@@ -60,10 +60,6 @@ public class ProductService {
         });
     }
 
-    /*public void assignComment(CommentWriteModel comment, int id) {
-        productRepository.findById(id).ifPresent(comment::setProduct);
-    }*/
-
     public void addCommentToSet(Comment comment, int id) {
         Product product = productRepository.findById(id)
                 .orElse(null);
