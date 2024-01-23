@@ -12,7 +12,7 @@ public class CommentReadModel {
     private String description;
     private LocalDateTime creationDate;
     private boolean isDeleted;
-    private int creatorUserId;
+    private String creatorUserId;
 
     public CommentReadModel(Comment source) {
         this.id = source.getId();

@@ -10,7 +10,7 @@ public class ProductReadModel {
     private String title;
     private String description;
     private LocalDateTime creationDate;
-    private int creatorUserId;
+    private String creatorUserId;
     private boolean isDeleted;
     private String imageUrl;
     public ProductReadModel(Product source) {

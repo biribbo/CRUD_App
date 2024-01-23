@@ -3,6 +3,8 @@ package com.example.crudApp.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.Setter;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -15,41 +17,22 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @NotBlank(message = "Product title must not be empty.")
+    @Setter
     private String title;
     @NotBlank(message = "Product description must not be empty.")
+    @Setter
     private String description;
     private LocalDateTime creationDate;
-    private int creatorUserId;
+    private String creatorUserId;
     private boolean isDeleted;
+    @Setter
     private String imageUrl;
     @OneToMany(mappedBy = "product")
+    @Setter
     private Set<Comment> comments;
     @ManyToMany
+    @Setter
     private Set<Category> categories;
-
-    void setId(int id) {
-        this.id = id;
-    }
-
-    void setTitle(String title) {
-        this.title = title;
-    }
-
-    void setDescription(String description) {
-        this.description = description;
-    }
-
-    public boolean isDeleted() {
-        return isDeleted;
-    }
-
-    void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    void setComments(Set<Comment> comments) {
-        this.comments = comments;
-    }
 
     public Product() {}
     public Product(String title, String description, String imageUrl) {
@@ -62,6 +45,7 @@ public class Product {
     void PrePersist() {
         creationDate = LocalDateTime.now();
         isDeleted = false;
+        creatorUserId = SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
     public void addComment(Comment comment) {

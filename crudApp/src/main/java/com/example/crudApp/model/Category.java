@@ -43,11 +43,10 @@ public class Category {
 
     public void addProduct(Product product) {
         products.add(product);
-        product.getCategories().add(this);
     }
+
     public void removeProduct (Product product) {
         products.remove(product);
-        product.getCategories().remove(this);
     }
     public void delete() {
         this.isDeleted = true;

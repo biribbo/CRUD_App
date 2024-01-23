@@ -1,5 +1,10 @@
-package com.example.crudApp.security;
+package com.example.crudApp.logic;
 
+import com.example.crudApp.dto.UserDto;
+import com.example.crudApp.model.Role;
+import com.example.crudApp.model.User;
+import com.example.crudApp.repository.RoleRepository;
+import com.example.crudApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

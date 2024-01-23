@@ -1,5 +1,6 @@
-package com.example.crudApp.security;
+package com.example.crudApp.model;
 
+import com.example.crudApp.model.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;

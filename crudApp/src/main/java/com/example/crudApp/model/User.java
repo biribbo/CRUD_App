@@ -1,4 +1,4 @@
-package com.example.crudApp.security;
+package com.example.crudApp.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -21,6 +21,7 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @NotBlank
+    @Column(unique = true)
     private String username;
     @NotBlank
     private String password;

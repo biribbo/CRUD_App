@@ -3,6 +3,8 @@ package com.example.crudApp.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.Setter;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 
@@ -15,28 +17,14 @@ public class Comment {
     private int id;
     @ManyToOne
     @JoinColumn
+    @Setter
     private Product product;
     @NotBlank
+    @Setter
     private String description;
     private LocalDateTime creationDate;
     private boolean isDeleted;
-    private int creatorUserId;
-
-    void setId(int id) {
-        this.id = id;
-    }
-
-    void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public boolean isDeleted() {
-        return isDeleted;
-    }
+    private String creatorUserId;
 
     public Comment() {}
     public Comment(String description) {
@@ -47,6 +35,7 @@ public class Comment {
     void PrePersist() {
         creationDate = LocalDateTime.now();
         isDeleted = false;
+        creatorUserId = SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
     public void remove() {

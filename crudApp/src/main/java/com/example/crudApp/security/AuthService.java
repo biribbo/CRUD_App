@@ -1,5 +1,6 @@
 package com.example.crudApp.security;
 
+import com.example.crudApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,11 +32,13 @@ public class AuthService {
             System.out.println("USER IS: " + user);
             var jwt = jwtUtils.generateToken(user);
             var refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), user);
-            response.setAccessToken(refreshToken);
+            response.setAccessToken(jwt);
+            response.setRefreshToken(refreshToken);
             response.setMessage("Successfully Signed In");
             response.setUsername(user.getUsername());
-            response.getAuthorities();
+            System.out.println(user.getAuthorities());
         } catch (Exception e){
+            System.out.println(e.getMessage());
             return null;
         }
         return response;

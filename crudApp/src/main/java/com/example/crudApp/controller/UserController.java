@@ -1,6 +1,7 @@
-package com.example.crudApp.security;
+package com.example.crudApp.controller;
 
-import jakarta.annotation.security.RolesAllowed;
+import com.example.crudApp.dto.UserDto;
+import com.example.crudApp.logic.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -3,14 +3,12 @@ package com.example.crudApp.logic;
 import com.example.crudApp.model.Comment;
 import com.example.crudApp.model.Product;
 import com.example.crudApp.repository.ProductRepository;
-import com.example.crudApp.dto.CommentWriteModel;
 import com.example.crudApp.dto.ProductReadModel;
 import com.example.crudApp.dto.ProductWriteModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +25,7 @@ public class ProductService {
     }
 
     public List<ProductReadModel> readAll(int page) {
-        List<Product> products = productRepository.findAllByIsDeletedIsFalse(PageRequest.of(page, PAGE_SIZE));
+        List<Product> products = productRepository.findAllByDeletedIsFalse(PageRequest.of(page, PAGE_SIZE));
         return products.stream()
                 .map(ProductReadModel::new)
                 .collect(Collectors.toList());
@@ -44,6 +42,13 @@ public class ProductService {
         return productRepository.findById(id)
                 .map(ProductReadModel::new)
                 .orElse(null);
+    }
+
+    public List<ProductReadModel> readProductsByName(String keyword) {
+        return productRepository.findAllByTitleContainingIgnoreCase(keyword)
+                .stream()
+                .map(ProductReadModel::new)
+                .collect(Collectors.toList());
     }
 
     public ProductReadModel createProduct(ProductWriteModel toCreate) {
@@ -73,7 +78,6 @@ public class ProductService {
     }
 
     public ProductReadModel updateProduct(ProductWriteModel product, int id) {
-        //TODO: if category does not exist
         Product source = product.toProduct();
         Product destination = productRepository.findById(id)
                 .orElse(null);
@@ -81,6 +85,12 @@ public class ProductService {
             return null;
         }
         destination.update(source);
+        source.getCategories().stream()
+                .filter(category -> !destination.getCategories().contains(category))
+                .forEach(category -> category.removeProduct(source));
+        destination.getCategories().stream()
+                .filter(category -> !source.getCategories().contains(category))
+                .forEach(category -> category.addProduct(destination));
         productRepository.save(destination);
         return new ProductReadModel(destination);
     }

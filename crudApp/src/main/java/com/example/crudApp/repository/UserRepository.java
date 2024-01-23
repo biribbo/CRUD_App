@@ -1,5 +1,7 @@
-package com.example.crudApp.security;
+package com.example.crudApp.repository;
 
+import com.example.crudApp.model.Role;
+import com.example.crudApp.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

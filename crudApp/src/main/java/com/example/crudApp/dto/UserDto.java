@@ -1,5 +1,7 @@
-package com.example.crudApp.security;
+package com.example.crudApp.dto;
 
+import com.example.crudApp.model.Role;
+import com.example.crudApp.model.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
