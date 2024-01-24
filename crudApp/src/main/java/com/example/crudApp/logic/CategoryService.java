@@ -21,12 +21,10 @@ public class CategoryService {
 
     public static final int PAGE_SIZE = 10;
     private final CategoryRepository repository;
-    //private final ProductService productService;
 
     @Autowired
-    public CategoryService(CategoryRepository repository /*, ProductService productService */) {
+    public CategoryService(CategoryRepository repository) {
         this.repository = repository;
-      //  this.productService = productService;
     }
 
     public List<CategoryReadModel> findAll(int page) {
@@ -80,8 +78,4 @@ public class CategoryService {
         repository.save(destination);
         return new CategoryReadModel(destination);
     }
-
-    //public ProductReadModel createProductInCategory(int id, ProductWriteModel tocreate) {
-      //  Product
-    //}
 }
