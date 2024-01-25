@@ -30,22 +30,30 @@ public class Product {
     @OneToMany(mappedBy = "product")
     @Setter
     private Set<Comment> comments;
-    @ManyToMany
+    @ManyToMany(mappedBy = "products", fetch = FetchType.EAGER)
     @Setter
     private Set<Category> categories;
 
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
     public Product() {}
-    public Product(String title, String description, String imageUrl) {
+    public Product(String title, String description, String imageUrl, Set<Category> categories) {
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
+        this.categories = categories;
     }
 
     @PrePersist
     void PrePersist() {
         creationDate = LocalDateTime.now();
         isDeleted = false;
-        creatorUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+        for (Category category : categories) {
+            category.addProduct(this);
+        }
+        //creatorUserId = SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
     public void addComment(Comment comment) {
@@ -63,6 +71,7 @@ public class Product {
         this.title = source.title;
         this.description = source.description;
         this.imageUrl = source.imageUrl;
-        this.categories = source.categories;
+        this.categories.clear();
+        this.categories.addAll(source.categories);
     }
 }

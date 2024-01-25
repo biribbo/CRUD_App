@@ -15,7 +15,12 @@ public class Category {
     private int id;
     @NotBlank
     private String name;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "product_categories",
+            joinColumns = @JoinColumn(name = "category_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
     Set<Product> products;
     private boolean isDeleted;
 

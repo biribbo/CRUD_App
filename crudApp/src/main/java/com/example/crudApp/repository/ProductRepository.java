@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
     Page<Product> findAll(Pageable page);
-    List<Product> findAllByDeletedIsFalse(Pageable page);
+    List<Product> findAllByIsDeletedIsFalse(Pageable page);
     Product save(Product entity);
     Optional<Product> findById(Integer id);
 

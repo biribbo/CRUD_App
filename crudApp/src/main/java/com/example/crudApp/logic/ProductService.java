@@ -2,6 +2,7 @@ package com.example.crudApp.logic;
 
 import com.example.crudApp.model.Comment;
 import com.example.crudApp.model.Product;
+import com.example.crudApp.repository.CategoryRepository;
 import com.example.crudApp.repository.ProductRepository;
 import com.example.crudApp.dto.ProductReadModel;
 import com.example.crudApp.dto.ProductWriteModel;
@@ -18,14 +19,16 @@ import java.util.stream.Collectors;
 public class ProductService {
     public static final int PAGE_SIZE = 10;
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     @Autowired
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public List<ProductReadModel> readAll(int page) {
-        List<Product> products = productRepository.findAllByDeletedIsFalse(PageRequest.of(page, PAGE_SIZE));
+        List<Product> products = productRepository.findAllByIsDeletedIsFalse(PageRequest.of(page, PAGE_SIZE));
         return products.stream()
                 .map(ProductReadModel::new)
                 .collect(Collectors.toList());
@@ -84,13 +87,14 @@ public class ProductService {
         if (destination == null) {
             return null;
         }
-        destination.update(source);
         source.getCategories().stream()
                 .filter(category -> !destination.getCategories().contains(category))
                 .forEach(category -> category.removeProduct(source));
         destination.getCategories().stream()
                 .filter(category -> !source.getCategories().contains(category))
                 .forEach(category -> category.addProduct(destination));
+        categoryRepository.saveAll(source.getCategories());
+        categoryRepository.saveAll(destination.getCategories());
         productRepository.save(destination);
         return new ProductReadModel(destination);
     }
