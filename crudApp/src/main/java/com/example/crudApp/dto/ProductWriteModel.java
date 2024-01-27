@@ -18,9 +18,8 @@ public class ProductWriteModel {
     @NotBlank
     private String description;
     private String imageUrl;
-    private Set<Category> categories;
 
     public Product toProduct() {
-        return new Product(title, description, imageUrl, categories);
+        return new Product(title, description, imageUrl);
     }
 }

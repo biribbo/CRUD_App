@@ -30,8 +30,18 @@ public class Category {
     void setName(String name) {
         this.name = name;
     }
-    void setProducts(Set<Product> products) {
-        this.products = products;
+    public void addProduct(Product product) {
+        products.add(product);
+    }
+    public void removeProduct(Product product) {
+        int id = product.getId();
+        for (Product productFromSet : products) {
+            if (productFromSet.getId() == id) {
+                products.remove(productFromSet);
+                product.removeCategory(this.id);
+                break;
+            }
+        }
     }
 
     public Category() {
@@ -46,13 +56,6 @@ public class Category {
         isDeleted = false;
     }
 
-    public void addProduct(Product product) {
-        products.add(product);
-    }
-
-    public void removeProduct (Product product) {
-        products.remove(product);
-    }
     public void delete() {
         this.isDeleted = true;
     }

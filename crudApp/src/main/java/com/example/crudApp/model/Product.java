@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
@@ -23,11 +24,12 @@ public class Product {
     @Setter
     private String description;
     private LocalDateTime creationDate;
+    @CreatedBy
     private String creatorUserId;
     private boolean isDeleted;
     @Setter
     private String imageUrl;
-    @OneToMany(mappedBy = "product")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "product", fetch = FetchType.EAGER)
     @Setter
     private Set<Comment> comments;
     @ManyToMany(mappedBy = "products", fetch = FetchType.EAGER)
@@ -39,25 +41,36 @@ public class Product {
     }
 
     public Product() {}
-    public Product(String title, String description, String imageUrl, Set<Category> categories) {
+
+    public Product(String title, String description, String imageUrl) {
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
-        this.categories = categories;
+    }
+
+    public void deleteAllComms() {
+        comments.clear();
     }
 
     @PrePersist
     void PrePersist() {
         creationDate = LocalDateTime.now();
         isDeleted = false;
-        for (Category category : categories) {
-            category.addProduct(this);
-        }
         //creatorUserId = SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
     public void addComment(Comment comment) {
         comments.add(comment);
+        comment.setProduct(this);
+    }
+
+    public void removeCategory(int cId) {
+        for (Category category : categories) {
+            if (category.getId() == id) {
+                categories.remove(category);
+                break;
+            }
+        }
     }
 
     public void delete () {
@@ -71,7 +84,5 @@ public class Product {
         this.title = source.title;
         this.description = source.description;
         this.imageUrl = source.imageUrl;
-        this.categories.clear();
-        this.categories.addAll(source.categories);
     }
 }

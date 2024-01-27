@@ -3,12 +3,14 @@ package com.example.crudApp.controller;
 import com.example.crudApp.logic.ProductService;
 import com.example.crudApp.dto.ProductReadModel;
 import com.example.crudApp.dto.ProductWriteModel;
+import com.example.crudApp.model.Category;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/products")
@@ -60,6 +62,14 @@ public class ProductController {
     @PutMapping(path = "/{id}")
     ResponseEntity<ProductReadModel> UpdateProduct(@RequestBody @Valid ProductWriteModel toUpdate, @PathVariable int id) {
         ProductReadModel product = service.updateProduct(toUpdate, id);
+        return product != null
+                ? ResponseEntity.ok(product)
+                : ResponseEntity.notFound().build();
+    }
+
+    @PutMapping(path = "/{id}/categories")
+    ResponseEntity<ProductReadModel> manageCategories(@RequestBody @Valid Set<Category> added, @RequestBody @Valid Set<Category> removed, @PathVariable int id) {
+        ProductReadModel product = service.manageCategories(added, removed, id);
         return product != null
                 ? ResponseEntity.ok(product)
                 : ResponseEntity.notFound().build();

@@ -5,9 +5,8 @@ import com.example.crudApp.model.Product;
 import com.example.crudApp.repository.CommentRepository;
 import com.example.crudApp.dto.CommentReadModel;
 import com.example.crudApp.dto.CommentWriteModel;
-import com.example.crudApp.dto.ProductReadModel;
+import com.example.crudApp.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,40 +15,43 @@ import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
-    public static final int PAGE_SIZE = 10;
     private final CommentRepository repository;
-    private final ProductService productService;
+    private final ProductRepository productRepository;
 
     @Autowired
-    public CommentService(CommentRepository repository, ProductService productService) {
+    public CommentService(CommentRepository repository, ProductRepository productRepository) {
         this.repository = repository;
-        this.productService = productService;
+        this.productRepository = productRepository;
     }
 
-    public List<CommentReadModel> getAllCommentsFromProduct(int id, int page) {
-        Product product = productService.getAllCommentsFromProduct(id);
+    public List<CommentReadModel> getAllCommentsFromProduct(int id) {
+        Product product = productRepository.findById(id)
+                .orElse(null);
         if (product == null) {
             return null;
         }
-        List<Comment> comments = repository.findAllByIsDeletedIsFalseAndProduct(PageRequest.of(page, PAGE_SIZE), product);
+        List<Comment> comments = repository.findAllByIsDeletedIsFalseAndProduct(product);
         return comments.stream()
                 .map(CommentReadModel::new)
                 .collect(Collectors.toList());
     }
 
-    public List<CommentReadModel> getAllCommentsFromProductWithDeleted(int id, int page) {
-        Product gotProduct = productService.getAllCommentsFromProduct(id);
-        if (gotProduct == null) {
+    public List<CommentReadModel> getAllCommentsFromProductWithDeleted(int id) {
+        Product product = productRepository.findById(id)
+                .orElse(null);
+        if (product == null) {
             return null;
         }
-        List<Comment> comments = repository.findAllByProduct(PageRequest.of(page, PAGE_SIZE), gotProduct);
+        List<Comment> comments = repository.findAllByProduct(product);
         return comments.stream()
                 .map(CommentReadModel::new)
                 .collect(Collectors.toList());
     }
 
     public CommentReadModel getCommentById(int id, int productId) {
-        if (productService.readSingleProduct(productId) == null) {
+        Product product = productRepository.findById(productId)
+                .orElse(null);
+        if (product == null) {
             return null;
         }
         return repository.findById(id)
@@ -57,16 +59,20 @@ public class CommentService {
                 .orElse(null);
     }
 
+    @Transactional
     public CommentReadModel createComment(CommentWriteModel comment, int pid) {
-        Comment newComment = comment.toComment();
-        repository.save(newComment);
-        try {
-            productService.addCommentToSet(newComment, pid);
-            repository.save(newComment);
-        } catch (NullPointerException e) {
-            e.getMessage();
+        Product product = productRepository.findById(pid)
+                .orElse(null);
+        if (product == null) {
             return null;
         }
+        Comment newComment = comment.toComment();
+        repository.save(newComment);
+        product.addComment(newComment);
+        System.out.println(product.getComments());
+        productRepository.save(product);
+        System.out.println(product.getComments());
+        repository.save(newComment);
         return new CommentReadModel(newComment);
     }
 
@@ -79,17 +85,15 @@ public class CommentService {
     }
 
     public CommentReadModel updateCooment(CommentWriteModel comment, int cId, int pId) {
-        if ((productService.readSingleProduct(pId) == null) || (repository.findById(cId).isEmpty())) {
+        Product product = productRepository.findById(pId)
+                .orElse(null);
+        if (product == null || !repository.existsById(cId)) {
             return null;
         }
         Comment source = comment.toComment();
         Comment destination = repository.findById(cId)
                 .orElse(null);
-        try {
-            destination.update(source);
-        } catch (IllegalStateException e) {
-            System.out.println("Cannot update comment " + cId);
-        }
+        destination.update(source);
         repository.save(destination);
         return new CommentReadModel(destination);
     }

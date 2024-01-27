@@ -4,11 +4,13 @@ import com.example.crudApp.model.Role;
 import com.example.crudApp.model.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class UserDto {
     @NotBlank
     private String username;
