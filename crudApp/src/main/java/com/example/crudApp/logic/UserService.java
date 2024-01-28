@@ -24,6 +24,9 @@ public class UserService {
     }
 
     public UserDto createUser(UserDto toCreate) {
+        String name = toCreate.getRoleName();
+        Role role = roleRepo.findByName(name);
+        toCreate.setRole(role);
         User newUser = toCreate.toUser();
         repo.save(newUser);
         return new UserDto(newUser);

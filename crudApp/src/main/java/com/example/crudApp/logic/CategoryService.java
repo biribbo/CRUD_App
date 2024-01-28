@@ -27,15 +27,15 @@ public class CategoryService {
         this.repository = repository;
     }
 
-    public List<CategoryReadModel> findAll(int page) {
-        List<Category> categories = repository.findAllByIsDeletedIsFalse(PageRequest.of(page, PAGE_SIZE));
+    public List<CategoryReadModel> findAll() {
+        List<Category> categories = repository.findAllByIsDeletedIsFalse();
         return categories.stream()
                 .map(CategoryReadModel::new)
                 .collect(Collectors.toList());
     }
 
-    public List<CategoryReadModel> finAllWithDeleted(int page) {
-        Page<Category> categories = repository.findAll(PageRequest.of(page, PAGE_SIZE));
+    public List<CategoryReadModel> finAllWithDeleted() {
+        List<Category> categories = repository.findAll();
         return categories.stream()
                 .map(CategoryReadModel::new)
                 .collect(Collectors.toList());

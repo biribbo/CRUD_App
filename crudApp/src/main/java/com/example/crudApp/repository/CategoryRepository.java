@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
-    List<Category> findAllByIsDeletedIsFalse(Pageable page);
-    Page<Category> findAll(Pageable page);
+    List<Category> findAllByIsDeletedIsFalse();
+    List<Category> findAll();
     Optional<Category> findById(int id);
     Category save(Category category);
 }

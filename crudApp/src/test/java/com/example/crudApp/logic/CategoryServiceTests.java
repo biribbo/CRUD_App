@@ -27,6 +27,6 @@ class CategoryServiceTests {
         toCreate3.setName("PC Parts");
         CategoryReadModel created3 = service.createCategory(toCreate3);
 
-        assertEquals(3, service.findAll(0).size());
+        assertEquals(3, service.findAll().size());
     }
 }

@@ -21,7 +21,6 @@ public class UserController {
     }
 
     @PostMapping
-    //@RolesAllowed({"ADMIN"})
     ResponseEntity<UserDto> createUser (@RequestBody @Valid UserDto toCreate) {
         UserDto user = service.createUser(toCreate);
         return ResponseEntity.created(URI.create("/users/" + user.getUsername())).body(user);

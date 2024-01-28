@@ -23,39 +23,33 @@ public class CategoryController {
     }
 
     @GetMapping
-    //@RolesAllowed({"ADMIN", "USER"})
-    ResponseEntity<List<CategoryReadModel>> readAll(@RequestParam int page) {
-        return ResponseEntity.ok(service.findAll(page));
+    ResponseEntity<List<CategoryReadModel>> readAll() {
+        return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping(path = "/all")
-    //@RolesAllowed({"ADMIN", "USER"})
-    ResponseEntity<List<CategoryReadModel>> readAllWithDeleted(@RequestParam int page) {
-        return ResponseEntity.ok(service.finAllWithDeleted(page));
+    ResponseEntity<List<CategoryReadModel>> readAllWithDeleted() {
+        return ResponseEntity.ok(service.finAllWithDeleted());
     }
 
     @GetMapping(path = "/{id}")
-    //@RolesAllowed({"ADMIN", "USER"})
     ResponseEntity<List<ProductReadModel>> readProductsFromCategory(@PathVariable int id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    //@RolesAllowed({"ADMIN", "USER"})
     ResponseEntity<CategoryReadModel> CreateCategory(@RequestBody @Valid CategoryWriteModel toCreate) {
         CategoryReadModel createdCategory = service.createCategory(toCreate);
         return ResponseEntity.created(URI.create("/products/" + createdCategory.getId())).body(createdCategory);
     }
 
     @DeleteMapping(path = "/{id}")
-    //@RolesAllowed({"ADMIN"})
     ResponseEntity<?> DeleteCategory(@PathVariable int id) {
         service.deleteCategory(id);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping(path = "/{id}")
-    //@RolesAllowed({"ADMIN", "USER"})
     ResponseEntity<CategoryReadModel> UpdateProduct(@RequestBody @Valid CategoryWriteModel toUpdate, @PathVariable int id) {
         CategoryReadModel category = service.updateCategory(toUpdate, id);
         return category != null
