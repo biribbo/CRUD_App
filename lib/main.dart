@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         future: _authService.isLoggedIn(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator(); // Show loading indicator while checking authentication status
+            return const CircularProgressIndicator(); // Show loading indicator while checking authentication status
           } else if (snapshot.data == true) {
             return IndexPage(authService: _authService); // User is logged in, navigate to IndexPage
           } else {
@@ -38,4 +38,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

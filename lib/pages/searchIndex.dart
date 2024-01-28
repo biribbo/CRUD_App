@@ -1,30 +1,30 @@
 import 'dart:convert';
-import 'package:crud_app/auth_service.dart';
+
 import 'package:crud_app/constants.dart';
 import 'package:crud_app/drawer.dart';
-import 'package:crud_app/theme/colours.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:logger/logger.dart';
+import 'package:http/http.dart' as http;
+import '../auth_service.dart';
+import '../theme/colours.dart';
 
-import '../customerSearchDelegate.dart';
-
-//TODO: pagination handling
-
-class IndexPage extends StatefulWidget {
+class SearchPage extends StatefulWidget {
   final AuthService authService;
+  final String keyword;
 
-  const IndexPage({required this.authService});
+  const SearchPage({required this.authService, required this.keyword});
 
   @override
-  _IndexPageState createState() => _IndexPageState();
+  _SearchPageState createState() => _SearchPageState();
 }
 
-class _IndexPageState extends State<IndexPage> {
+class _SearchPageState extends State<SearchPage> {
   final Logger logger = Logger();
-  List products = [];
+  List foundProducts = [];
   bool isLoading = false;
+  late String keyword;
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController imageUrlController = TextEditingController();
@@ -32,6 +32,7 @@ class _IndexPageState extends State<IndexPage> {
   @override
   void initState() {
     super.initState();
+    keyword = widget.keyword;
     fetchProduct();
   }
 
@@ -40,19 +41,18 @@ class _IndexPageState extends State<IndexPage> {
     logger.i("token: $bearerToken");
 
     if (bearerToken != null && bearerToken.isNotEmpty) {
-      var url = Uri.parse("${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}?page=0");
+      var url = Uri.parse("${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/search/$keyword");
       var headers = {'Authorization': 'Bearer $bearerToken'};
       try {
         var response = await http.get(url, headers: headers);
         if (response.statusCode == 200) {
-          var responseBody = json.decode(response.body);
-          var items = responseBody['content'];
+          var items = json.decode(response.body);
           setState(() {
-            products = items;
+            foundProducts = items;
             isLoading = false;
           });
         } else {
-          products = [];
+          foundProducts = [];
           isLoading = false;
           showToast("Could not load products ${response.statusCode}");
         }
@@ -63,6 +63,18 @@ class _IndexPageState extends State<IndexPage> {
     } else {
       showToast("Bearer token is null or empty");
     }
+  }
+
+  void showToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.blue,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
   }
 
   void addProduct() async {
@@ -78,9 +90,9 @@ class _IndexPageState extends State<IndexPage> {
       'imageUrl': imageUrlController.text
     };
     var response = await http.post(
-      url,
-      body: json.encode(body),
-      headers: headers
+        url,
+        body: json.encode(body),
+        headers: headers
     );
 
     if (response.statusCode == 201) {
@@ -197,26 +209,14 @@ class _IndexPageState extends State<IndexPage> {
     );
   }
 
-  void showToast(String message) {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.blue,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    if(products.contains(null) || products.length < 0 || isLoading){
+    if(foundProducts.contains(null) || foundProducts.length < 0 || isLoading){
       return const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(primary),));
     }
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Listing Products", style: TextStyle(color: white)),
+        title: Text("Search results for <$keyword>", style: TextStyle(color: white)),
         backgroundColor: primary,
         leading: Builder(
           builder: (BuildContext context) {
@@ -228,50 +228,18 @@ class _IndexPageState extends State<IndexPage> {
             );
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.white,),
-            onPressed: () async {
-              await showSearch(
-                context: context,
-                delegate: CustomSearchDelegate(authService: widget.authService),
-              );
-            },
-          ),
-        ],
       ),
-      body: Stack(
-        children: [
-          getBody(),
-          Positioned(
-            bottom: 16.0,
-            right: 16.0,
-            child: ClipOval(
-              child: ElevatedButton(
-                onPressed: () {
-                  _showAddOrEditProductDialog(true, 0);
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: const CircleBorder(),
-                  backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.all(16.0),
-                ),
-                child: const Icon(Icons.add, color: Colors.white),
-              ),
-            ),
-          )
-        ],
-      ),
+      body: getBody(),
       drawer: AppDrawer(authService: widget.authService,),
     );
   }
 
   Widget getBody() {
     return ListView.builder(
-        itemCount: products.length,
+        itemCount: foundProducts.length,
         itemBuilder: (context, index){
-        return getCard(products[index]);
-      });
+          return getCard(foundProducts[index]);
+        });
   }
   Widget getCard(Map<String, dynamic> item) {
     var id = item['id'];
@@ -338,4 +306,4 @@ class _IndexPageState extends State<IndexPage> {
       ),
     );
   }
- }
+}
