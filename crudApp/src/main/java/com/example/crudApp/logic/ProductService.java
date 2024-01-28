@@ -1,7 +1,7 @@
 package com.example.crudApp.logic;
 
+import com.example.crudApp.exception.InvalidPageNumberException;
 import com.example.crudApp.model.Category;
-import com.example.crudApp.model.Comment;
 import com.example.crudApp.model.Product;
 import com.example.crudApp.repository.CategoryRepository;
 import com.example.crudApp.repository.CommentRepository;
@@ -33,11 +33,15 @@ public class ProductService {
         this.commentRepository = commentRepository;
     }
 
-    public List<ProductReadModel> readAll(int page) {
-        List<Product> products = productRepository.findAllByIsDeletedIsFalse(PageRequest.of(page, PAGE_SIZE));
-        return products.stream()
-                .map(ProductReadModel::new)
-                .collect(Collectors.toList());
+    public Page<ProductReadModel> readAll(int page) {
+        if (page < 0) {
+            throw new InvalidPageNumberException("Page number must be non-negative.");
+        }
+        Page<Product> productPage = productRepository.findAllByIsDeletedIsFalse(PageRequest.of(page, PAGE_SIZE));
+        if (page >= productPage.getTotalPages()) {
+            throw new InvalidPageNumberException("Invalid page number.");
+        }
+        return productPage.map(ProductReadModel::new);
     }
 
     public List<ProductReadModel> readAllWithDeleted(int page) {

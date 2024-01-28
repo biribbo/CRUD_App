@@ -35,10 +35,11 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request.requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/console").permitAll()
                         .requestMatchers(HttpMethod.DELETE).hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/users").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/users").hasAuthority("ADMIN")
-                        .anyRequest().hasAnyAuthority("ADMIN", "USER"))
+                        //.requestMatchers(HttpMethod.PUT, "/users").hasAuthority("ADMIN")
+                        //.requestMatchers(HttpMethod.POST, "/users").hasAuthority("ADMIN")
+                        .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).addFilterBefore(
                         jwtAuthFIlter, UsernamePasswordAuthenticationFilter.class

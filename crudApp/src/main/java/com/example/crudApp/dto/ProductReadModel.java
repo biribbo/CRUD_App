@@ -15,7 +15,6 @@ public class ProductReadModel {
     private String creatorUserId;
     private boolean isDeleted;
     private String imageUrl;
-    private Set<Category> categories;
     public ProductReadModel(Product source) {
         id = source.getId();
         title = source.getTitle();
@@ -24,6 +23,5 @@ public class ProductReadModel {
         creatorUserId = source.getCreatorUserId();
         isDeleted = source.isDeleted();
         imageUrl = source.getImageUrl();
-        categories = source.getCategories();
     }
 }

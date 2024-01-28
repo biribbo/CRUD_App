@@ -1,14 +1,17 @@
 package com.example.crudApp.controller;
 
+import com.example.crudApp.exception.InvalidPageNumberException;
 import com.example.crudApp.logic.ProductService;
 import com.example.crudApp.dto.ProductReadModel;
 import com.example.crudApp.dto.ProductWriteModel;
 import com.example.crudApp.model.Category;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -23,9 +26,14 @@ public class ProductController {
     }
 
     @GetMapping
-    ResponseEntity<List<ProductReadModel>> readAll(@RequestParam int page) {
-        List<ProductReadModel> products = service.readAll(page);
-        return ResponseEntity.ok(products);
+    ResponseEntity<Page<ProductReadModel>> readAll(@RequestParam int page) {
+        try {
+            Page<ProductReadModel> productsPage = service.readAll(page);
+            return ResponseEntity.ok(productsPage);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(Page.empty());
+        }
     }
 
     @GetMapping(path = "/all")

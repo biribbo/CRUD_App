@@ -12,6 +12,6 @@ public class AuthRequest {
     private String username;
 
     @NotNull
-    @Length(min = 5, max = 10)
+    @Length(min = 4, max = 10)
     private String password;
 }

@@ -4,10 +4,12 @@ import com.example.crudApp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class AuthService {
@@ -27,8 +29,9 @@ public class AuthService {
     public AuthResponse login(AuthRequest request){
         AuthResponse response = new AuthResponse();
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(),request.getPassword()));
-            var user = repo.findByUsername(request.getUsername()).orElseThrow();
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+            var user = repo.findByUsername(request.getUsername())
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
             System.out.println("USER IS: " + user);
             var jwt = jwtUtils.generateToken(user);
             var refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), user);
@@ -36,9 +39,9 @@ public class AuthService {
             response.setRefreshToken(refreshToken);
             response.setMessage("Successfully Signed In");
             response.setUsername(user.getUsername());
-            System.out.println(user.getAuthorities());
+            response.setAuthorities(new String[]{user.getRole().toString()});
         } catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println("error " + e.getMessage());
             return null;
         }
         return response;
