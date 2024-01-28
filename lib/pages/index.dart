@@ -1,50 +1,172 @@
 import 'dart:convert';
+import 'package:crud_app/auth_service.dart';
 import 'package:crud_app/constants.dart';
 import 'package:crud_app/theme/colours.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:logger/logger.dart';
 
 class IndexPage extends StatefulWidget {
+  final AuthService authService;
+
+  const IndexPage({required this.authService});
+
   @override
   _IndexPageState createState() => _IndexPageState();
 }
 
 class _IndexPageState extends State<IndexPage> {
+  final Logger logger = Logger();
   List products = [];
   bool isLoading = false;
+  TextEditingController titleController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController imageUrlController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    this.fetchProduct();
+    fetchProduct();
   }
 
   fetchProduct() async {
-    var url = Uri.parse(ApiConstants.baseUrl + ApiConstants.productsEndpoint);
-    var response = await http.get(url);
-    if (response.statusCode == 200) {
-      var items = json.decode(response.body);
-      setState(() {
-        products = items;
-        isLoading = false;
-      });
-    } else {
-        products = [];
-        isLoading = false;
-      }
-    }
+    String? bearerToken = widget.authService.accessToken;
+    logger.i("token: $bearerToken");
 
-  deleteProduct(var id) async {
-    var url = Uri.parse(ApiConstants.baseUrl + ApiConstants.productsEndpoint + "/" + id.toString());
+    if (bearerToken != null && bearerToken.isNotEmpty) {
+      var url = Uri.parse("${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}?page=0");
+      var headers = {'Authorization': 'Bearer $bearerToken'};
+      try {
+        var response = await http.get(url, headers: headers);
+        if (response.statusCode == 200) {
+          var responseBody = json.decode(response.body);
+          var items = responseBody['content'];
+          setState(() {
+            products = items;
+            isLoading = false;
+          });
+        } else {
+          products = [];
+          isLoading = false;
+          showToast("Could not load products ${response.statusCode}");
+        }
+      } catch (error) {
+        logger.i(error.toString());
+        showToast("Error fetching products");
+      }
+    } else {
+      showToast("Bearer token is null or empty");
+    }
+  }
+
+
+  void addProduct() async {
+    String? bearerToken = widget.authService.accessToken;
+    var url = Uri.parse(ApiConstants.baseUrl + ApiConstants.productsEndpoint);
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $bearerToken'
+    };
+    var body = {
+      'title': titleController.text,
+      'description': descriptionController.text,
+      'imageUrl': imageUrlController.text
+    };
+    var response = await http.post(
+      url,
+      body: json.encode(body),
+      headers: headers
+    );
+
+    if (response.statusCode == 201) {
+      showToast('Product added successfully');
+      fetchProduct();
+    } else {
+      showToast('Error adding product');
+    }
+  }
+
+    deleteProduct(var id) async {
+    var url = Uri.parse("${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/$id");
     final request = http.Request("DELETE", url);
     final response = await request.send();
     if (response.statusCode != 200) {
       showToast('Error');
     } else {
-      showToast('Product ' + id.toString() + ' deleted');
+      showToast('Product $id deleted');
       fetchProduct();
     }
+  }
+
+  void _showAddProductDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: primary,
+          title: const Text(
+            'Add Product',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: Column(
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Title',
+                  labelStyle: TextStyle(color: Colors.white), // Set label text color
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white), // Set underline color
+                  ),
+                ),
+              ),
+              TextField(
+                controller: descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Title',
+                  labelStyle: TextStyle(color: Colors.white), // Set label text color
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white), // Set underline color
+                  ),
+                ),
+              ),
+              TextField(
+                controller: imageUrlController,
+                decoration: const InputDecoration(
+                  labelText: 'Title',
+                  labelStyle: TextStyle(color: Colors.white), // Set label text color
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white), // Set underline color
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                addProduct();
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'Add',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void showToast(String message) {
@@ -62,7 +184,7 @@ class _IndexPageState extends State<IndexPage> {
   @override
    Widget build(BuildContext context) {
     if(products.contains(null) || products.length < 0 || isLoading){
-      return Center(child: CircularProgressIndicator(valueColor: new AlwaysStoppedAnimation<Color>(primary),));
+      return const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(primary),));
     }
   return Scaffold(
       appBar: AppBar(
@@ -78,14 +200,14 @@ class _IndexPageState extends State<IndexPage> {
           child: ClipOval(
             child: ElevatedButton(
               onPressed: () {
-                // Add your action for the button here
+                _showAddProductDialog();
               },
               style: ElevatedButton.styleFrom(
-                shape: CircleBorder(),
-                backgroundColor: Colors.blue, // Makes the button circular
-                padding: EdgeInsets.all(16.0),
+                shape: const CircleBorder(),
+                backgroundColor: Colors.blue,
+                padding: const EdgeInsets.all(16.0),
                 ),
-              child: Icon(Icons.add, color: Colors.white),
+              child: const Icon(Icons.add, color: Colors.white),
             ),
           ),
         )
@@ -101,7 +223,7 @@ class _IndexPageState extends State<IndexPage> {
         return getCard(products[index]);
       });
   }
-  Widget getCard(item) {
+  Widget getCard(Map<String, dynamic> item) {
     var id = item['id'];
     var title = item['title'];
     var description = item['description'];
@@ -109,46 +231,52 @@ class _IndexPageState extends State<IndexPage> {
     return Card(
       color: primary,
       child: Padding(
-          padding: const EdgeInsets.all(10.8),
+        padding: const EdgeInsets.all(10.8),
         child: ListTile(
-            title: Row(
-              children: <Widget>[
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                      color: primary,
-                      borderRadius: BorderRadius.circular(60/2),
-                      image: DecorationImage(
-                        image: NetworkImage(image)
-                      )
+          title: Row(
+            children: <Widget>[
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: primary,
+                  borderRadius: BorderRadius.circular(60 / 2),
+                  image: DecorationImage(
+                    image: NetworkImage(image),
+                    fit: BoxFit.cover, // Added BoxFit.cover to ensure the image covers the container
                   ),
                 ),
-                SizedBox(width: 20),
-                Column(
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.6,
-                        child: Text(title, style: TextStyle(fontSize: 17, color: white))),
-                    SizedBox(height: 10),
-                    Text(description, style: TextStyle(color: Colors.grey)),
-                    //Spacer(),
-                    IconButton(
-                      alignment: Alignment.centerRight,
-                      icon: Icon(Icons.delete_rounded),
-                      color: Colors.grey,
-                      iconSize: 24.0,
-                      onPressed: () {
-                        deleteProduct(id);
-                      },
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      child: Text(title, style: const TextStyle(fontSize: 17, color: white)),
                     ),
+                    const SizedBox(height: 10),
+                    Text(description, style: const TextStyle(color: Colors.grey)),
                   ],
-                )
-              ],
-            )
-        )
-      )
+                ),
+              ),
+              IconButton(
+                alignment: Alignment.centerRight,
+                icon: const Icon(Icons.delete_rounded),
+                color: Colors.grey,
+                iconSize: 24.0,
+                onPressed: () {
+                  if (!widget.authService.roles.contains("ADMIN")) {
+                    showToast("Access denied - admin role needed");
+                  }
+                  deleteProduct(id);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
  }
