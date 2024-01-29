@@ -21,6 +21,8 @@ class _IndexPageWithDeletedState extends State<IndexPageWithDeleted> {
   final Logger logger = Logger();
   List products = [];
   bool isLoading = false;
+  int currentPage = 0;
+  int totalPages = 1;
 
   @override
   void initState() {
@@ -29,19 +31,24 @@ class _IndexPageWithDeletedState extends State<IndexPageWithDeleted> {
   }
 
   fetchProduct(int id) async {
-
     String? bearerToken = widget.authService.accessToken;
     logger.i("token: $bearerToken");
 
     if (bearerToken != null && bearerToken.isNotEmpty) {
-      var url = Uri.parse("${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/all?page=$id");
+      var url = Uri.parse("${ApiConstants.baseUrl}${ApiConstants
+          .productsEndpoint}/all?page=$id");
       var headers = {'Authorization': 'Bearer $bearerToken'};
       try {
         var response = await http.get(url, headers: headers);
         if (response.statusCode == 200) {
-          var items = json.decode(response.body);
+          var responseBody = json.decode(response.body);
+          var items = responseBody['content'];
+          var pageInfo = responseBody['pageable'];
+
           setState(() {
             products = items;
+            currentPage = pageInfo['pageNumber'] ?? 0;
+            totalPages = responseBody['totalPages'] ?? 1;
             isLoading = false;
           });
         } else {
@@ -72,12 +79,14 @@ class _IndexPageWithDeletedState extends State<IndexPageWithDeleted> {
 
   @override
   Widget build(BuildContext context) {
-    if(products.contains(null) || products.length < 0 || isLoading){
-      return const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(primary),));
+    if (products.contains(null) || products.length < 0 || isLoading) {
+      return const Center(child: CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation<Color>(primary),));
     }
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Listing Products With Deleted", style: TextStyle(color: white)),
+        title: const Text(
+            "Listing Products With Deleted", style: TextStyle(color: white)),
         backgroundColor: primary,
         leading: Builder(
           builder: (BuildContext context) {
@@ -91,6 +100,13 @@ class _IndexPageWithDeletedState extends State<IndexPageWithDeleted> {
         ),
       ),
       body: getBody(),
+      bottomNavigationBar: YourPaginationWidget(
+        currentPage: currentPage,
+        totalPages: totalPages,
+        onPageChanged: (page) {
+          fetchProduct(page);
+        },
+      ),
       drawer: AppDrawer(authService: widget.authService,),
     );
   }
@@ -98,10 +114,11 @@ class _IndexPageWithDeletedState extends State<IndexPageWithDeleted> {
   Widget getBody() {
     return ListView.builder(
         itemCount: products.length,
-        itemBuilder: (context, index){
+        itemBuilder: (context, index) {
           return getCard(products[index]);
         });
   }
+
   Widget getCard(Map<String, dynamic> item) {
     var id = item['id'];
     var title = item['title'];
@@ -125,7 +142,8 @@ class _IndexPageWithDeletedState extends State<IndexPageWithDeleted> {
                   borderRadius: BorderRadius.circular(60 / 2),
                   image: DecorationImage(
                     image: NetworkImage(image),
-                    fit: BoxFit.cover, // Added BoxFit.cover to ensure the image covers the container
+                    fit: BoxFit
+                        .cover, // Added BoxFit.cover to ensure the image covers the container
                   ),
                 ),
               ),
@@ -135,22 +153,30 @@ class _IndexPageWithDeletedState extends State<IndexPageWithDeleted> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.65,
-                      child: Text(title, style: const TextStyle(fontSize: 17, color: white)),
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width * 0.65,
+                      child: Text(title,
+                          style: const TextStyle(fontSize: 17, color: white)),
                     ),
                     const SizedBox(height: 10),
-                    Text(description, style: const TextStyle(color: Colors.grey)),
+                    Text(description,
+                        style: const TextStyle(color: Colors.grey)),
                     const SizedBox(height: 5),
                     if (isDeleted == 'true')
                       const Row(
                         children: [
                           Icon(Icons.delete_outline, color: Colors.red),
                           SizedBox(width: 5),
-                          Text('Deleted', style: TextStyle(fontSize: 12, color: Colors.red)),
+                          Text('Deleted', style: TextStyle(fontSize: 12,
+                              color: Colors.red)),
                         ],
                       ),
                     const SizedBox(height: 5),
-                    Text('Created $creationDate by $creatorUserId', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    Text('Created $creationDate by $creatorUserId',
+                        style: const TextStyle(
+                            fontSize: 12, color: Colors.grey)),
                   ],
                 ),
               ),
@@ -158,8 +184,10 @@ class _IndexPageWithDeletedState extends State<IndexPageWithDeleted> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('ID: $id', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                  if (isDeleted == true) const Icon(Icons.delete_outline, color: Colors.red),
+                  Text('ID: $id',
+                      style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  if (isDeleted == true) const Icon(
+                      Icons.delete_outline, color: Colors.red),
                 ],
               ),
             ],
@@ -169,3 +197,39 @@ class _IndexPageWithDeletedState extends State<IndexPageWithDeleted> {
     );
   }
 }
+
+  class YourPaginationWidget extends StatelessWidget {
+  final int currentPage;
+  final int totalPages;
+  final Function(int) onPageChanged;
+
+  YourPaginationWidget({
+  required this.currentPage,
+  required this.totalPages,
+  required this.onPageChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: Icon(Icons.arrow_left,
+          color: currentPage > 0 ? Colors.white : Colors.grey),
+          onPressed: currentPage > 0
+            ? () => onPageChanged(currentPage - 1)
+            : null,
+        ),
+        Text('${currentPage + 1} / $totalPages', style: TextStyle(color: Colors.white),),
+        IconButton(
+          icon: Icon(Icons.arrow_right,
+          color: currentPage < totalPages - 1 ? Colors.white : Colors
+            .grey),
+          onPressed: currentPage < totalPages - 1 ? () =>
+            onPageChanged(currentPage + 1) : null,
+          ),
+        ],
+      );
+    }
+  }

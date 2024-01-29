@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:crud_app/auth_service.dart';
 import 'package:crud_app/constants.dart';
 import 'package:crud_app/drawer.dart';
+import 'package:crud_app/pages/productWithComments.dart';
 import 'package:crud_app/theme/colours.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -25,6 +26,9 @@ class _IndexPageState extends State<IndexPage> {
   final Logger logger = Logger();
   List products = [];
   bool isLoading = false;
+  int currentPage = 0;
+  int totalPages = 1;
+  int totalItems = 0;
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController imageUrlController = TextEditingController();
@@ -32,25 +36,32 @@ class _IndexPageState extends State<IndexPage> {
   @override
   void initState() {
     super.initState();
-    fetchProduct();
+    fetchProduct(currentPage);
   }
 
-  fetchProduct() async {
+  fetchProduct(int page) async {
     String? bearerToken = widget.authService.accessToken;
     logger.i("token: $bearerToken");
 
     if (bearerToken != null && bearerToken.isNotEmpty) {
-      var url = Uri.parse("${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}?page=0");
+      var url = Uri.parse("${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}?page=$page");
       var headers = {'Authorization': 'Bearer $bearerToken'};
       try {
         var response = await http.get(url, headers: headers);
         if (response.statusCode == 200) {
           var responseBody = json.decode(response.body);
           var items = responseBody['content'];
+          var pageInfo = responseBody['pageable'];
           setState(() {
             products = items;
+            currentPage = pageInfo['pageNumber'];
+            totalPages = responseBody['totalPages'];
+            totalItems = responseBody['totalElements'];
             isLoading = false;
           });
+          logger.i(currentPage);
+          logger.i(totalPages);
+          logger.i(totalItems);
         } else {
           products = [];
           isLoading = false;
@@ -85,7 +96,7 @@ class _IndexPageState extends State<IndexPage> {
 
     if (response.statusCode == 201) {
       showToast('Product added successfully');
-      fetchProduct();
+      fetchProduct(currentPage);
     } else {
       showToast('Error adding product');
     }
@@ -108,6 +119,12 @@ class _IndexPageState extends State<IndexPage> {
         body: json.encode(body),
         headers: headers
     );
+    if (response.statusCode == 200) {
+      showToast('Product updated successfully');
+      fetchProduct(currentPage);
+    } else {
+      showToast('Error updating product');
+    }
   }
 
   deleteProduct(var id) async {
@@ -118,7 +135,7 @@ class _IndexPageState extends State<IndexPage> {
       showToast('Error');
     } else {
       showToast('Product $id deleted');
-      fetchProduct();
+      fetchProduct(currentPage);
     }
   }
 
@@ -262,9 +279,17 @@ class _IndexPageState extends State<IndexPage> {
           )
         ],
       ),
+      bottomNavigationBar: YourPaginationWidget(
+        currentPage: currentPage,
+        totalPages: totalPages,
+        onPageChanged: (page) {
+          fetchProduct(page);
+        },
+      ),
       drawer: AppDrawer(authService: widget.authService,),
     );
   }
+
 
   Widget getBody() {
     return ListView.builder(
@@ -332,10 +357,58 @@ class _IndexPageState extends State<IndexPage> {
                   }
                 },
               ),
+              IconButton(
+                alignment: Alignment.centerRight,
+                icon: const Icon(Icons.arrow_right),
+                color: Colors.grey,
+                iconSize: 24.0,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CommentsPage(id: id, authService: widget.authService,)),
+                  );
+                },
+              ),
             ],
           ),
         ),
       ),
     );
   }
+ }
+
+ class YourPaginationWidget extends StatelessWidget {
+   final int currentPage;
+   final int totalPages;
+   final Function(int) onPageChanged;
+
+   YourPaginationWidget({
+     required this.currentPage,
+     required this.totalPages,
+     required this.onPageChanged,
+   });
+
+   @override
+   Widget build(BuildContext context) {
+     return Row(
+       mainAxisAlignment: MainAxisAlignment.center,
+       children: [
+         IconButton(
+           icon: Icon(Icons.arrow_left,
+               color: currentPage > 0 ? Colors.white : Colors.grey),
+           onPressed: currentPage > 0
+               ? () => onPageChanged(currentPage - 1)
+               : null,
+         ),
+         Text('${currentPage + 1} / $totalPages', style: TextStyle(color: Colors.white),),
+         IconButton(
+           icon: Icon(Icons.arrow_right,
+               color: currentPage < totalPages - 1 ? Colors.white : Colors
+                   .grey),
+           onPressed: currentPage < totalPages - 1 ? () =>
+               onPageChanged(currentPage + 1) : null,
+         ),
+       ],
+     );
+   }
  }

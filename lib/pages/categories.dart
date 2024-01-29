@@ -97,6 +97,12 @@ class _CategoriesPageState extends State<CategoriesPage> {
         body: json.encode(body),
         headers: headers
     );
+    if (response.statusCode == 200) {
+      showToast('Category updated successfully');
+      fetchCategory();
+    } else {
+      showToast('Error updating category');
+    }
   }
 
   deleteCategory(var id) async {
@@ -197,6 +203,17 @@ class _CategoriesPageState extends State<CategoriesPage> {
             );
           },
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.list, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CategoryProductsPage(authService: widget.authService,)),
+              );
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -258,7 +275,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   ],
                 ),
               ),
-              if (isDeleted == false)
                 Row(
                   children: [
                     IconButton(
@@ -284,14 +300,202 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     ),
                   ],
                 )
-              else if (isDeleted == true)
-                const Row(
-                  children: [
-                    Icon(Icons.delete_outline, color: Colors.red),
-                    SizedBox(width: 5),
-                    Text('Deleted', style: TextStyle(fontSize: 12, color: Colors.red)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CategoryProductsPage extends StatefulWidget {
+  final AuthService authService;
+
+  const CategoryProductsPage({Key? key, required this.authService}) : super(key: key);
+
+  @override
+  _CategoryProductsPageState createState() => _CategoryProductsPageState();
+}
+
+class _CategoryProductsPageState extends State<CategoryProductsPage> {
+  int? selectedValue;
+  List products = [];
+  List categories = [];
+  final Logger logger = Logger();
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCategory();
+  }
+
+  void showToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.blue,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
+
+  fetchCategory() async {
+    String? bearerToken = widget.authService.accessToken;
+    logger.i("token: $bearerToken");
+
+    if (bearerToken != null && bearerToken.isNotEmpty) {
+      var url = Uri.parse("${ApiConstants.baseUrl}${ApiConstants.categoriesEndpoint}/all");
+      var headers = {'Authorization': 'Bearer $bearerToken'};
+      try {
+        var response = await http.get(url, headers: headers);
+        if (response.statusCode == 200) {
+          var items = json.decode(response.body);
+          setState(() {
+            categories = items;
+          });
+        } else {
+          categories = [];
+          showToast("Could not load categories ${response.statusCode}");
+        }
+      } catch (error) {
+        logger.i(error.toString());
+        showToast("Error fetching categories");
+      }
+    } else {
+      showToast("Bearer token is null or empty");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Products by category", style: TextStyle(color: Colors.white)),
+        backgroundColor: primary,
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white,),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
+        actions: [
+          DropdownButton<int>(
+            value: selectedValue,
+            icon: const Icon(Icons.arrow_downward, color: Colors.white),
+            iconSize: 24,
+            elevation: 16,
+            style: const TextStyle(color: Colors.white),
+            underline: Container(
+              height: 2,
+              color: Colors.white,
+            ),
+            onChanged: (int? newValue) {
+              setState(() {
+                selectedValue = newValue;
+                logger.i(newValue);
+                fetchProductsByCategory(newValue!);
+              });
+            },
+            items: categories.map((value) {
+              return DropdownMenuItem<int>(
+                value: value['id'],
+                child: Text(value['name']),
+              );
+            }).toList(),
+            dropdownColor: Colors.black54,
+          ),
+        ],
+      ),
+      body: getBody(),
+      drawer: AppDrawer(authService: widget.authService,),
+    );
+  }
+
+  Widget getBody() {
+    logger.i(products);
+    return ListView.builder(
+        itemCount: products.length,
+        itemBuilder: (context, index){
+          return getCard(products[index]);
+        });
+  }
+  Widget getCard(Map<String, dynamic> item) {
+    var id = item['id'];
+    var title = item['title'];
+    var description = item['description'];
+    var image = item['imageUrl'];
+    var isDeleted = item['deleted'];
+    var creatorUserId = item['creatorUserId'];
+    var creationDate = item['creationDate'];
+    return Card(
+      color: primary,
+      child: Padding(
+        padding: const EdgeInsets.all(10.8),
+        child: ListTile(
+          title: Row(
+            children: <Widget>[
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: primary,
+                  borderRadius: BorderRadius.circular(60 / 2),
+                  image: DecorationImage(
+                    image: NetworkImage(image),
+                    fit: BoxFit
+                        .cover,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    SizedBox(
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width * 0.65,
+                      child: Text(title,
+                          style: const TextStyle(fontSize: 17, color: white)),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(description,
+                        style: const TextStyle(color: Colors.grey)),
+                    const SizedBox(height: 5),
+                    if (isDeleted == 'true')
+                      const Row(
+                        children: [
+                          Icon(Icons.delete_outline, color: Colors.red),
+                          SizedBox(width: 5),
+                          Text('Deleted', style: TextStyle(fontSize: 12,
+                              color: Colors.red)),
+                        ],
+                      ),
+                    const SizedBox(height: 5),
+                    Text('Created $creationDate by $creatorUserId',
+                        style: const TextStyle(
+                            fontSize: 12, color: Colors.grey)),
                   ],
                 ),
+              ),
+              const SizedBox(width: 5),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('ID: $id',
+                      style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  if (isDeleted == true) const Icon(
+                      Icons.delete_outline, color: Colors.red),
+                ],
+              ),
             ],
           ),
         ),
@@ -299,4 +503,30 @@ class _CategoriesPageState extends State<CategoriesPage> {
     );
   }
 
+  void fetchProductsByCategory(int id) async {
+    String? bearerToken = widget.authService.accessToken;
+
+    if (bearerToken != null && bearerToken.isNotEmpty) {
+      var url = Uri.parse(
+          "${ApiConstants.baseUrl}${ApiConstants.categoriesEndpoint}/$id");
+      var headers = {'Authorization': 'Bearer $bearerToken'};
+      try {
+        var response = await http.get(url, headers: headers);
+        if (response.statusCode == 200) {
+          var items = json.decode(response.body);
+          setState(() {
+            products = items;
+          });
+        } else {
+          products = [];
+          showToast("Could not load categories ${response.statusCode}");
+        }
+      } catch (error) {
+        logger.i(error.toString());
+        showToast("Error fetching categories");
+      }
+    } else {
+      showToast("Bearer token is null or empty");
+    }
+  }
 }
