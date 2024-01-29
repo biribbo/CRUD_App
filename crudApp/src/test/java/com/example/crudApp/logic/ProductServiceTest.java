@@ -76,9 +76,9 @@ class ProductServiceTest {
         service.deleteProduct(42);
         service.deleteProduct(43);
 
-        assertEquals(10, service.readAllWithDeleted(0).size());
-        assertEquals(10, service.readAllWithDeleted(1).size());
-        assertEquals(3, service.readAllWithDeleted(2).size());
+        assertEquals(10, service.readAllWithDeleted(0).getNumberOfElements());
+        assertEquals(10, service.readAllWithDeleted(1).getNumberOfElements());
+        assertEquals(3, service.readAllWithDeleted(2).getNumberOfElements());
     }
 
     @Test

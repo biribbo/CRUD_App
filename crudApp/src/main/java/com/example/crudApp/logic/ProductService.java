@@ -44,11 +44,9 @@ public class ProductService {
         return productPage.map(ProductReadModel::new);
     }
 
-    public List<ProductReadModel> readAllWithDeleted(int page) {
+    public Page<ProductReadModel> readAllWithDeleted(int page) {
         Page<Product> products = productRepository.findAll(PageRequest.of(page, PAGE_SIZE));
-        return products.stream()
-                .map(ProductReadModel::new)
-                .collect(Collectors.toList());
+        return products.map(ProductReadModel::new);
     }
 
     public ProductReadModel readSingleProduct(int id) {

@@ -37,9 +37,14 @@ public class ProductController {
     }
 
     @GetMapping(path = "/all")
-    ResponseEntity<List<ProductReadModel>> readAllWithDeleted(@RequestParam int page) {
-        List<ProductReadModel> products = service.readAllWithDeleted(page);
-        return ResponseEntity.ok(products);
+    ResponseEntity<Page<ProductReadModel>> readAllWithDeleted(@RequestParam int page) {
+        try {
+            Page<ProductReadModel> productsPage = service.readAllWithDeleted(page);
+            return ResponseEntity.ok(productsPage);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(Page.empty());
+        }
     }
 
     @GetMapping(path = "/{id}")
