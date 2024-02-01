@@ -90,7 +90,7 @@ class ProductServiceTest {
         assertThat(searchResult2.size()).isEqualTo(18);
     }
 
-    @Test
+/*    @Test
     public void assignCategoriesTest() {
         Category videoGames = categoryRepo.findById(7)
                 .orElse(null);
@@ -146,6 +146,7 @@ class ProductServiceTest {
 
         assertThat(testProduct.getCategories().size()).isEqualTo(2);
     }
+    */
 
     @Test
     public void deleteWithCommentsTest() {

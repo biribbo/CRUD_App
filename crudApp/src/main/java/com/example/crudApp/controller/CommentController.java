@@ -1,5 +1,6 @@
 package com.example.crudApp.controller;
 
+import com.example.crudApp.dto.ProductReadModel;
 import com.example.crudApp.logic.CommentService;
 import com.example.crudApp.dto.CommentReadModel;
 import com.example.crudApp.dto.CommentWriteModel;
@@ -52,7 +53,7 @@ public class CommentController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(path = "/products/{pId}/comments/{cId}")
+    @PutMapping(path = "/products/{pId}/comments/{cId}")
     public ResponseEntity<CommentReadModel> updateComment(@PathVariable int cId, @PathVariable int pId, @RequestBody @Valid CommentWriteModel toUpdate) {
         CommentReadModel updatedComment = service.updateCooment(toUpdate, cId, pId);
         return updatedComment != null

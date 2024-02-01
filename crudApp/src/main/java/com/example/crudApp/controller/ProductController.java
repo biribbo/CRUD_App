@@ -81,7 +81,7 @@ public class ProductController {
     }
 
     @PutMapping(path = "/{id}/categories")
-    ResponseEntity<ProductReadModel> manageCategories(@RequestBody @Valid Set<Category> added, @RequestBody @Valid Set<Category> removed, @PathVariable int id) {
+    ResponseEntity<ProductReadModel> manageCategories(@RequestBody @Valid Set<Integer> added, @RequestBody @Valid Set<Integer> removed, @PathVariable int id) {
         ProductReadModel product = service.manageCategories(added, removed, id);
         return product != null
                 ? ResponseEntity.ok(product)

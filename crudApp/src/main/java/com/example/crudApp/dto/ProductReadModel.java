@@ -4,6 +4,7 @@ import com.example.crudApp.model.Category;
 import com.example.crudApp.model.Product;
 import lombok.Getter;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -15,6 +16,7 @@ public class ProductReadModel {
     private String creatorUserId;
     private boolean isDeleted;
     private String imageUrl;
+    private Set<Integer> categories = new HashSet<>();
     public ProductReadModel(Product source) {
         id = source.getId();
         title = source.getTitle();
@@ -23,5 +25,10 @@ public class ProductReadModel {
         creatorUserId = source.getCreatorUserId();
         isDeleted = source.isDeleted();
         imageUrl = source.getImageUrl();
+        if (source.getCategories() != null) {
+            for (Category category : source.getCategories()) {
+                categories.add(category.getId());
+            }
+        }
     }
 }

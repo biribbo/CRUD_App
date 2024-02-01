@@ -92,17 +92,21 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductReadModel manageCategories(Set<Category> added, Set<Category> deleted, int id) {
-        Product product = productRepository.findById(id)
+    public ProductReadModel manageCategories(Set<Integer> added, Set<Integer> deleted, int cId) {
+        Product product = productRepository.findById(cId)
                 .orElse(null);
         if (product == null) {
             return null;
         }
-        for (Category category : added) {
+        for (Integer id : added) {
+            Category category = categoryRepository.findById(id)
+                    .orElse(null);
             category.addProduct(product);
             categoryRepository.save(category);
         }
-        for (Category category : deleted) {
+        for (Integer id: deleted) {
+            Category category = categoryRepository.findById(id)
+                    .orElse(null);
             category.removeProduct(product);
             categoryRepository.save(category);
         }
