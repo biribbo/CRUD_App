@@ -11,7 +11,7 @@ import 'package:logger/logger.dart';
 class IndexPageWithDeleted extends StatefulWidget {
   final AuthService authService;
 
-  const IndexPageWithDeleted({required this.authService});
+  const IndexPageWithDeleted({super.key, required this.authService});
 
   @override
   _IndexPageWithDeletedState createState() => _IndexPageWithDeletedState();
@@ -203,7 +203,7 @@ class _IndexPageWithDeletedState extends State<IndexPageWithDeleted> {
   final int totalPages;
   final Function(int) onPageChanged;
 
-  YourPaginationWidget({
+  const YourPaginationWidget({super.key,
   required this.currentPage,
   required this.totalPages,
   required this.onPageChanged,
@@ -211,25 +211,7 @@ class _IndexPageWithDeletedState extends State<IndexPageWithDeleted> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          icon: Icon(Icons.arrow_left,
-          color: currentPage > 0 ? Colors.white : Colors.grey),
-          onPressed: currentPage > 0
-            ? () => onPageChanged(currentPage - 1)
-            : null,
-        ),
-        Text('${currentPage + 1} / $totalPages', style: TextStyle(color: Colors.white),),
-        IconButton(
-          icon: Icon(Icons.arrow_right,
-          color: currentPage < totalPages - 1 ? Colors.white : Colors
-            .grey),
-          onPressed: currentPage < totalPages - 1 ? () =>
-            onPageChanged(currentPage + 1) : null,
-          ),
-        ],
-      );
-    }
+    // TODO: implement build
+    throw UnimplementedError();
   }
+}

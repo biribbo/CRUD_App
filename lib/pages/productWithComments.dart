@@ -1,7 +1,7 @@
 import 'dart:convert';
 
+import 'package:crud_app/classes/toast.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:logger/logger.dart';
 import 'package:http/http.dart' as http;
 import '../auth_service.dart';
@@ -13,7 +13,7 @@ class CommentsPage extends StatefulWidget {
   final AuthService authService;
   final int id;
 
-  const CommentsPage({required this.authService, required this.id});
+  const CommentsPage({super.key, required this.authService, required this.id});
 
   @override
   _CommentsPageState createState() => _CommentsPageState();
@@ -21,6 +21,7 @@ class CommentsPage extends StatefulWidget {
 
 class _CommentsPageState extends State<CommentsPage> {
   final Logger logger = Logger();
+  final CustomToast toast = CustomToast();
   TextEditingController descriptionController = TextEditingController();
   List comments = [];
   var product;
@@ -33,18 +34,6 @@ class _CommentsPageState extends State<CommentsPage> {
     productId = widget.id;
     fetchProduct(widget.id);
     fetchComments(widget.id);
-  }
-
-  void showToast(String message) {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.blue,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
   }
 
   void addComment() async {
@@ -65,10 +54,10 @@ class _CommentsPageState extends State<CommentsPage> {
     );
 
     if (response.statusCode == 201) {
-      showToast('Comment added successfully');
+      toast.showToast('Comment added successfully');
       fetchProduct(productId);
     } else {
-      showToast('Error adding comment');
+      toast.showToast('Error adding comment');
     }
   }
 
@@ -89,10 +78,10 @@ class _CommentsPageState extends State<CommentsPage> {
         headers: headers
     );
     if (response.statusCode == 200) {
-      showToast('Comment updated successfully');
+      toast.showToast('Comment updated successfully');
       fetchProduct(productId);
     } else {
-      showToast('Error updating comment');
+      toast.showToast('Error updating comment');
     }
   }
 
@@ -102,9 +91,9 @@ class _CommentsPageState extends State<CommentsPage> {
     final request = http.Request("DELETE", url);
     final response = await request.send();
     if (response.statusCode != 200) {
-      showToast('Error');
+      toast.showToast('Error');
     } else {
-      showToast('Comment $id deleted');
+      toast.showToast('Comment $id deleted');
       fetchProduct(productId);
     }
   }
@@ -184,14 +173,14 @@ class _CommentsPageState extends State<CommentsPage> {
         } else {
           product = null;
           isLoading = false;
-          showToast("Could not load product ${response.statusCode}");
+          toast.showToast("Could not load product ${response.statusCode}");
         }
       } catch (error) {
         logger.i(error.toString());
-        showToast("Error fetching product");
+        toast.showToast("Error fetching product");
       }
     } else {
-      showToast("Bearer token is null or empty");
+      toast.showToast("Bearer token is null or empty");
     }
   }
 
@@ -214,14 +203,14 @@ class _CommentsPageState extends State<CommentsPage> {
         } else {
           comments = [];
           isLoading = false;
-          showToast("Could not load products ${response.statusCode}");
+          toast.showToast("Could not load products ${response.statusCode}");
         }
       } catch (error) {
         logger.i(error.toString());
-        showToast("Error fetching products");
+        toast.showToast("Error fetching products");
       }
     } else {
-      showToast("Bearer token is null or empty");
+      toast.showToast("Bearer token is null or empty");
     }
   }
 

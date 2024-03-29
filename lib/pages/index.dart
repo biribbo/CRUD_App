@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:crud_app/auth_service.dart';
+import 'package:crud_app/classes/toast.dart';
 import 'package:crud_app/constants.dart';
 import 'package:crud_app/drawer.dart';
 import 'package:crud_app/pages/productWithComments.dart';
 import 'package:crud_app/theme/colours.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:logger/logger.dart';
 
 import '../customerSearchDelegate.dart';
@@ -16,7 +16,7 @@ import '../customerSearchDelegate.dart';
 class IndexPage extends StatefulWidget {
   final AuthService authService;
 
-  const IndexPage({required this.authService});
+  const IndexPage({super.key, required this.authService});
 
   @override
   _IndexPageState createState() => _IndexPageState();
@@ -24,6 +24,7 @@ class IndexPage extends StatefulWidget {
 
 class _IndexPageState extends State<IndexPage> {
   final Logger logger = Logger();
+  final CustomToast toast = CustomToast();
   List products = [];
   bool isLoading = false;
   int currentPage = 0;
@@ -65,14 +66,14 @@ class _IndexPageState extends State<IndexPage> {
         } else {
           products = [];
           isLoading = false;
-          showToast("Could not load products ${response.statusCode}");
+          toast.showToast("Could not load products ${response.statusCode}");
         }
       } catch (error) {
         logger.i(error.toString());
-        showToast("Error fetching products");
+        toast.showToast("Error fetching products");
       }
     } else {
-      showToast("Bearer token is null or empty");
+      toast.showToast("Bearer token is null or empty");
     }
   }
 
@@ -95,10 +96,10 @@ class _IndexPageState extends State<IndexPage> {
     );
 
     if (response.statusCode == 201) {
-      showToast('Product added successfully');
+      toast.showToast('Product added successfully');
       fetchProduct(currentPage);
     } else {
-      showToast('Error adding product');
+      toast.showToast('Error adding product');
     }
   }
 
@@ -120,10 +121,10 @@ class _IndexPageState extends State<IndexPage> {
         headers: headers
     );
     if (response.statusCode == 200) {
-      showToast('Product updated successfully');
+      toast.showToast('Product updated successfully');
       fetchProduct(currentPage);
     } else {
-      showToast('Error updating product');
+      toast.showToast('Error updating product');
     }
   }
 
@@ -132,9 +133,9 @@ class _IndexPageState extends State<IndexPage> {
     final request = http.Request("DELETE", url);
     final response = await request.send();
     if (response.statusCode != 200) {
-      showToast('Error');
+      toast.showToast('Error');
     } else {
-      showToast('Product $id deleted');
+      toast.showToast('Product $id deleted');
       fetchProduct(currentPage);
     }
   }
@@ -214,18 +215,6 @@ class _IndexPageState extends State<IndexPage> {
     );
   }
 
-  void showToast(String message) {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.blue,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     if(products.contains(null) || products.length < 0 || isLoading){
@@ -290,7 +279,6 @@ class _IndexPageState extends State<IndexPage> {
     );
   }
 
-
   Widget getBody() {
     return ListView.builder(
         itemCount: products.length,
@@ -351,7 +339,7 @@ class _IndexPageState extends State<IndexPage> {
                 iconSize: 24.0,
                 onPressed: () {
                   if (!widget.authService.roles.contains("ADMIN")) {
-                    showToast("Access denied - admin role needed");
+                    toast.showToast("Access denied - admin role needed");
                   } else {
                     deleteProduct(id);
                   }
@@ -382,7 +370,7 @@ class _IndexPageState extends State<IndexPage> {
    final int totalPages;
    final Function(int) onPageChanged;
 
-   YourPaginationWidget({
+   const YourPaginationWidget({super.key,
      required this.currentPage,
      required this.totalPages,
      required this.onPageChanged,
@@ -400,7 +388,7 @@ class _IndexPageState extends State<IndexPage> {
                ? () => onPageChanged(currentPage - 1)
                : null,
          ),
-         Text('${currentPage + 1} / $totalPages', style: TextStyle(color: Colors.white),),
+         Text('${currentPage + 1} / $totalPages', style: const TextStyle(color: Colors.white),),
          IconButton(
            icon: Icon(Icons.arrow_right,
                color: currentPage < totalPages - 1 ? Colors.white : Colors

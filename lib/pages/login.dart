@@ -1,13 +1,12 @@
 import 'package:crud_app/pages/index.dart';
 import 'package:crud_app/theme/colours.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import '../auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   final AuthService authService;
 
-  LoginPage({required this.authService});
+  const LoginPage({super.key, required this.authService});
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -16,18 +15,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-
-  void showToast(String message) {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.blue,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.blue,
+                  backgroundColor: Colors.blue,
                 ),
                 child: const Text(
                     'Login',
