@@ -1,9 +1,9 @@
-class Product {
+class Product extends Object {
   final int id;
   final String title;
   final String description;
   final String creationDate;
-  final String creatorUserId;
+  final String? creatorUserId;
   final bool isDeleted;
   final String imageUrl;
 

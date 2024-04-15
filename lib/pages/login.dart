@@ -1,15 +1,16 @@
-import 'package:crud_app/pages/index.dart';
-import 'package:crud_app/theme/colours.dart';
+import 'package:crud_app/widgets/input_text_field.dart';
 import 'package:flutter/material.dart';
-import '../auth_service.dart';
+import '../service/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   final AuthService authService;
+  final Function loginAttempt;
 
-  const LoginPage({super.key, required this.authService});
+  const LoginPage(
+      {super.key, required this.authService, required this.loginAttempt});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -18,66 +19,32 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-            'Login Page',
-            style: TextStyle(color: Colors.white)
-        ),
-        backgroundColor: primary,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                controller: usernameController,
-                decoration: const InputDecoration(
-                  labelText: 'Username',
-                  labelStyle: TextStyle(color: Colors.white),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                ),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            InputTextField(controller: usernameController, text: "Username"),
+            const SizedBox(height: 16.0),
+            InputTextField(controller: passwordController, text: "Password"),
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () async {
+                bool loggedIn = await widget.authService.login(
+                  usernameController.text,
+                  passwordController.text,
+                );
+                if (loggedIn) {
+                  widget.loginAttempt();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
               ),
-              const SizedBox(height: 16.0),
-              TextFormField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: TextStyle(color: Colors.white),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () async {
-                  bool loggedIn = await widget.authService.login(
-                    usernameController.text,
-                    passwordController.text,
-                  );
-                  if (loggedIn) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => IndexPage(authService: widget.authService)),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                ),
-                child: const Text(
-                    'Login',
-                    style: TextStyle(color: Colors.white)
-                ),
-              ),
-            ],
-          ),
+              child: const Text('Login', style: TextStyle(color: Colors.white)),
+            ),
+          ],
         ),
       ),
     );

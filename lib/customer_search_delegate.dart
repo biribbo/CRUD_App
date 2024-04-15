@@ -1,13 +1,11 @@
-import 'package:crud_app/pages/searchIndex.dart';
+import 'package:crud_app/pages/search_index.dart';
 import 'package:crud_app/theme/colours.dart';
 import 'package:flutter/material.dart';
 
-import 'auth_service.dart';
-
 class CustomSearchDelegate extends SearchDelegate {
-  final AuthService authService;
+  final String accessToken;
 
-  CustomSearchDelegate({required this.authService});
+  CustomSearchDelegate(this.accessToken);
 
   @override
   ThemeData appBarTheme(BuildContext context) {
@@ -26,7 +24,10 @@ class CustomSearchDelegate extends SearchDelegate {
   List<Widget> buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: const Icon(Icons.clear, color: Colors.white,),
+        icon: const Icon(
+          Icons.clear,
+          color: Colors.white,
+        ),
         onPressed: () {
           query = '';
         },
@@ -46,7 +47,7 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    return SearchPage(authService: authService, keyword: query);
+    return SearchPage(accessToken: accessToken, keyword: query);
   }
 
   @override
