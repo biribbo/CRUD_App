@@ -31,8 +31,9 @@ class _IndexPageState extends State<IndexPage> {
 
   Future<void> fetchProductsAndLog() async {
     await productService.fetchProduct(0, products);
-    currentPage = productService.getCurrentPage();
-    logger.i(products);
+    setState(() {
+      currentPage = productService.getCurrentPage();
+    });
   }
 
   void reload() {
@@ -72,7 +73,14 @@ class _IndexPageState extends State<IndexPage> {
           ],
         ),
         AddButton(onPressed: () {
-          AddDialog(true, "Product", productService.addProduct, null);
+          showDialog(
+            context: context,
+            builder: ((context) => AddDialog(
+                true,
+                "Product",
+                productService.addProduct,
+                null)), // Move semicolon outside parentheses
+          );
         })
       ],
     );

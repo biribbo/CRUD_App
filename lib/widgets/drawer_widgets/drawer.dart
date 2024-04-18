@@ -1,5 +1,5 @@
 import 'package:crud_app/theme/colours.dart';
-import 'package:crud_app/widgets/drawer_tile.dart';
+import 'package:crud_app/widgets/drawer_widgets/drawer_tile.dart';
 import 'package:flutter/material.dart';
 
 class AppDrawer extends StatelessWidget {

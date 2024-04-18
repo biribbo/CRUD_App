@@ -16,7 +16,7 @@ class AddButton extends StatelessWidget {
       child: ClipOval(
         child: ElevatedButton(
           onPressed: () {
-            onPressed;
+            onPressed();
           },
           style: ElevatedButton.styleFrom(
             shape: const CircleBorder(),

@@ -20,7 +20,10 @@ class AddDialog extends StatelessWidget {
         isToCreate ? "Add $item" : "Edit $item",
         style: const TextStyle(color: Colors.white),
       ),
-      content: _textFields(item),
+      content: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        child: _textFields(item),
+      ),
       actions: [
         ElevatedButton(
           onPressed: () {

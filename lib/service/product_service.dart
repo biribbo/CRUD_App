@@ -21,7 +21,6 @@ class ProductService {
         var response = await http.get(url, headers: headers);
         if (response.statusCode == 200) {
           var responseBody = json.decode(response.body);
-          logger.i(responseBody);
           var items = responseBody['content'];
           var pageInfo = responseBody['pageable'];
           _currentPage = pageInfo['pageNumber'];
@@ -40,14 +39,12 @@ class ProductService {
           logger.i(response.statusCode);
         }
       } catch (error) {
-        logger.i(error.hashCode);
+        logger.i(error.toString());
       }
     }
   }
 
-  fetchProductWithDeleted(int id) async {
-    List<Product> result = List.empty();
-
+  fetchProductWithDeleted(int id, List<Product> result) async {
     if (bearerToken.isNotEmpty) {
       var url = Uri.parse(
           "${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/all?page=$id");
@@ -61,13 +58,14 @@ class ProductService {
           _currentPage = pageInfo['pageNumber'];
           totalPages = responseBody['totalPages'];
           for (var item in items) {
+            logger.i(item);
             result.add(Product(
                 item['id'],
                 item['title'],
                 item['description'],
                 item['creationDate'],
                 item['creatorUserId'],
-                item['isDeleted'],
+                item['deleted'],
                 item['imageUrl']));
           }
         } else {
@@ -77,7 +75,6 @@ class ProductService {
         logger.i(error.toString());
       }
     }
-    return result;
   }
 
   fetchSingleProduct(int id) async {
@@ -95,12 +92,10 @@ class ProductService {
               item['description'],
               item['creationDate'],
               item['creatorUserId'],
-              item['isDeleted'],
+              item['deleted'],
               item['imageUrl']);
           return product;
         } else {
-          //roduct = null;
-          //isLoading = false;
           logger.i("Could not load product ${response.statusCode}");
           return null;
         }
@@ -129,7 +124,7 @@ class ProductService {
                 item['description'],
                 item['creationDate'],
                 item['creatorUserId'],
-                item['isDeleted'],
+                item['deleted'],
                 item['imageUrl']));
           }
         } else {
@@ -160,7 +155,7 @@ class ProductService {
                 item['description'],
                 item['creationDate'],
                 item['creatorUserId'],
-                item['isDeleted'],
+                item['deleted'],
                 item['imageUrl']));
           }
         } else {

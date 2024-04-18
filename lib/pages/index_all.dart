@@ -25,13 +25,19 @@ class _IndexPageWithDeletedState extends State<IndexPageWithDeleted> {
   void initState() {
     super.initState();
     productService = ProductService(widget.accessToken, reload);
-    productService.fetchProductWithDeleted(currentPage);
-    currentPage = productService.getCurrentPage();
+    fetchProductsAndLog();
+  }
+
+  Future<void> fetchProductsAndLog() async {
+    await productService.fetchProductWithDeleted(0, products);
+    setState(() {
+      currentPage = productService.getCurrentPage();
+    });
   }
 
   void reload() {
     setState(() {
-      productService.fetchProductWithDeleted(currentPage);
+      productService.fetchProductWithDeleted(currentPage, products);
     });
   }
 

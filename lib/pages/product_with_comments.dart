@@ -1,11 +1,11 @@
 import 'package:crud_app/classes/comment.dart';
 import 'package:crud_app/classes/product.dart';
-import 'package:crud_app/widgets/comments_container.dart';
+import 'package:crud_app/widgets/singular_product_view/comments_container.dart';
 import 'package:crud_app/widgets/dialogs/add_dialog.dart';
 import 'package:crud_app/service/comment_service.dart';
 import 'package:crud_app/service/product_service.dart';
 import 'package:crud_app/widgets/add_button.dart';
-import 'package:crud_app/widgets/product_container.dart';
+import 'package:crud_app/widgets/singular_product_view/product_container.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
