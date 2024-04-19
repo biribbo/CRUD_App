@@ -7,14 +7,16 @@ import 'package:logger/logger.dart';
 import 'package:http/http.dart' as http;
 
 class CommentService {
-  CommentService(this.bearerToken, this.productId, this.productService);
+  CommentService(
+      this.bearerToken, this.productId, this.productService, this.reload);
   final Logger logger = Logger();
   final String bearerToken;
   final int productId;
   final ProductService productService;
+  final Function reload;
 
   fetchComments(int id) async {
-    List<Comment> result = List.empty();
+    List<Comment> result = [];
     if (bearerToken.isNotEmpty) {
       var url = Uri.parse(
           "${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/$id/comments");
@@ -24,13 +26,8 @@ class CommentService {
         if (response.statusCode == 200) {
           var items = json.decode(response.body);
           for (var item in items) {
-            result.add(Comment(
-                item['id'],
-                productId,
-                item['description'],
-                item['creationDate'],
-                item['isDeleted'],
-                item['creatorUserId']));
+            result.add(Comment(item['id'], productId, item['description'],
+                item['creationDate'], item['deleted'], item['creatorUserId']));
           }
         } else {
           logger.i("Could not load comments ${response.toString()}");
@@ -56,7 +53,7 @@ class CommentService {
         await http.post(url, body: json.encode(body), headers: headers);
 
     if (response.statusCode == 201) {
-      productService.fetchSingleProduct(productId);
+      reload();
     } else {
       logger.i('Error adding comment: ${response.toString()}');
     }
@@ -75,7 +72,7 @@ class CommentService {
     var response =
         await http.put(url, body: json.encode(body), headers: headers);
     if (response.statusCode == 200) {
-      productService.fetchSingleProduct(productId);
+      reload();
     } else {
       logger.i('Error updating comment: ${response.toString()}');
     }
@@ -84,14 +81,12 @@ class CommentService {
   deleteComment(var id) async {
     var url = Uri.parse(
         "${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/$productId${ApiConstants.commentsEndpoint}/$id");
-    final request = http.Request("DELETE", url);
-    final response = await request.send();
+    var headers = {'Authorization': 'Bearer $bearerToken'};
+    final response = await http.delete(url, headers: headers);
     if (response.statusCode != 200) {
-      logger.i('Error deleting comment: ${response.toString()}');
-      return false;
+      logger.i('Error deleting comment: ${response.statusCode}');
     } else {
-      productService.fetchSingleProduct(productId);
-      return true;
+      reload();
     }
   }
 }

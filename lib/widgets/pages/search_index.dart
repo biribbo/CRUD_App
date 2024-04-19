@@ -3,14 +3,15 @@ import 'package:crud_app/service/product_service.dart';
 import 'package:crud_app/widgets/card_widgets/card.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import '../theme/colours.dart';
+import '../../theme/colours.dart';
 
 class SearchPage extends StatefulWidget {
-  final String accessToken;
+  final String _accessToken;
   final String keyword;
 
   const SearchPage(
-      {super.key, required this.accessToken, required this.keyword});
+      {super.key, required String accessToken, required this.keyword})
+      : _accessToken = accessToken;
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -27,7 +28,7 @@ class _SearchPageState extends State<SearchPage> {
   void initState() {
     super.initState();
     keyword = widget.keyword;
-    productService = ProductService(widget.accessToken, reload);
+    productService = ProductService(widget._accessToken, reload);
     foundProducts = productService.fetchSearchedProduct(keyword);
   }
 

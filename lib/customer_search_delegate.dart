@@ -1,6 +1,8 @@
-import 'package:crud_app/pages/search_index.dart';
+import 'package:crud_app/widgets/pages/search_index.dart';
 import 'package:crud_app/theme/colours.dart';
 import 'package:flutter/material.dart';
+
+//TODO: fix search
 
 class CustomSearchDelegate extends SearchDelegate {
   final String accessToken;

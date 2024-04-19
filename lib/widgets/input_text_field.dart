@@ -1,3 +1,4 @@
+import 'package:crud_app/theme/colours.dart';
 import 'package:flutter/material.dart';
 
 class InputTextField extends StatelessWidget {
@@ -10,7 +11,9 @@ class InputTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      obscureText: text == "Password",
       controller: controller,
+      style: const TextStyle(color: white),
       decoration: InputDecoration(
         labelText: text,
         labelStyle: const TextStyle(color: Colors.white),

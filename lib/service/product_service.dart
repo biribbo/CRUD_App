@@ -10,9 +10,10 @@ class ProductService {
   final String bearerToken;
   final Function reload;
   int _currentPage = 0;
-  late int totalPages;
+  int totalPages = 1;
 
-  fetchProduct(int page, List<Product> result) async {
+  fetchProduct(int page) async {
+    List<Product> result = [];
     if (bearerToken.isNotEmpty) {
       var url = Uri.parse(
           "${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}?page=$page");
@@ -42,9 +43,11 @@ class ProductService {
         logger.i(error.toString());
       }
     }
+    return result;
   }
 
-  fetchProductWithDeleted(int id, List<Product> result) async {
+  fetchProductWithDeleted(int id) async {
+    List<Product> result = [];
     if (bearerToken.isNotEmpty) {
       var url = Uri.parse(
           "${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/all?page=$id");
@@ -75,6 +78,7 @@ class ProductService {
         logger.i(error.toString());
       }
     }
+    return result;
   }
 
   fetchSingleProduct(int id) async {
@@ -107,8 +111,7 @@ class ProductService {
   }
 
   fetchProductsByCategory(int id) async {
-    List<Product> result = List.empty();
-
+    List<Product> result = [];
     if (bearerToken.isNotEmpty) {
       var url = Uri.parse(
           "${ApiConstants.baseUrl}${ApiConstants.categoriesEndpoint}/$id");
@@ -138,8 +141,7 @@ class ProductService {
   }
 
   fetchSearchedProduct(String keyword) async {
-    List<Product> result = List.empty();
-
+    List<Product> result = [];
     if (bearerToken.isNotEmpty) {
       var url = Uri.parse(
           "${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/search/$keyword");
@@ -211,14 +213,12 @@ class ProductService {
   deleteProduct(var id) async {
     var url = Uri.parse(
         "${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/$id");
-    final request = http.Request("DELETE", url);
-    final response = await request.send();
+    var headers = {'Authorization': 'Bearer $bearerToken'};
+    final response = await http.delete(url, headers: headers);
     if (response.statusCode != 200) {
       logger.i(response.toString());
-      return false;
     } else {
       reload();
-      return true;
     }
   }
 

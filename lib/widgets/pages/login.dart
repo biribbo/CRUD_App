@@ -1,13 +1,14 @@
 import 'package:crud_app/widgets/input_text_field.dart';
 import 'package:flutter/material.dart';
-import '../service/auth_service.dart';
+import '../../service/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
-  final AuthService authService;
+  final AuthService _authService;
   final Function loginAttempt;
 
   const LoginPage(
-      {super.key, required this.authService, required this.loginAttempt});
+      {super.key, required AuthService authService, required this.loginAttempt})
+      : _authService = authService;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -21,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(26.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -31,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () async {
-                bool loggedIn = await widget.authService.login(
+                bool loggedIn = await widget._authService.login(
                   usernameController.text,
                   passwordController.text,
                 );

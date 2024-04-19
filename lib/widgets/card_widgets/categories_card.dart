@@ -3,22 +3,25 @@ import 'package:crud_app/service/category_service.dart';
 import 'package:crud_app/theme/colours.dart';
 import 'package:crud_app/widgets/dialogs/add_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:toastification/toastification.dart';
 
 class CategoriesCard extends StatelessWidget {
   const CategoriesCard(
-      {super.key, required this.data, required this.categoryService});
+      {super.key,
+      required this.data,
+      required this.categoryService,
+      required this.move});
 
   final Category data;
   final CategoryService categoryService;
+  final Function move;
 
   @override
   Widget build(BuildContext context) {
     var id = data.id;
     var name = data.name;
+    var deleted = data.isDeleted;
 
     return Row(children: <Widget>[
-      const SizedBox(width: 20),
       Expanded(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,29 +37,41 @@ class CategoriesCard extends StatelessWidget {
         ),
       ),
       Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            color: Colors.grey,
-            iconSize: 24.0,
-            onPressed: () {
-              AddDialog(false, "Category", categoryService.editCategory, id);
-            },
-          ),
-          IconButton(
-            alignment: Alignment.centerRight,
-            icon: const Icon(Icons.delete_rounded),
-            color: Colors.grey,
-            iconSize: 24.0,
-            onPressed: () {
-              if (!categoryService.deleteCategory(id)) {
-                toastification.show(
+          if (!deleted) ...[
+            IconButton(
+              icon: const Icon(Icons.edit),
+              color: Colors.grey,
+              iconSize: 24.0,
+              onPressed: () {
+                showDialog(
                     context: context,
-                    title: const Text("Access denied - admin role needed"),
-                    autoCloseDuration: const Duration(seconds: 5));
-              }
-            },
-          ),
+                    builder: ((context) => AddDialog(
+                        false, "Category", categoryService.editCategory, id)));
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete_rounded),
+              color: Colors.grey,
+              iconSize: 24.0,
+              onPressed: () {
+                categoryService.deleteCategory(id);
+              },
+            ),
+          ] else ...[
+            const Icon(Icons.delete_outline, color: Colors.red),
+            const SizedBox(width: 5),
+            const Text('Deleted',
+                style: TextStyle(fontSize: 12, color: Colors.red)),
+          ],
+          IconButton(
+              icon: const Icon(Icons.arrow_forward),
+              color: Colors.grey,
+              iconSize: 24.0,
+              onPressed: () {
+                move(id);
+              })
         ],
       )
     ]);

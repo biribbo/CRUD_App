@@ -7,9 +7,10 @@ import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
 class UserPage extends StatefulWidget {
-  final AuthService authService;
+  final AuthService _authService;
 
-  const UserPage({super.key, required this.authService});
+  const UserPage({super.key, required AuthService authService})
+      : _authService = authService;
 
   @override
   State<UserPage> createState() => _UserPageState();
@@ -28,7 +29,7 @@ class _UserPageState extends State<UserPage> {
   }
 
   fetchUsers() async {
-    String? bearerToken = widget.authService.accessToken;
+    String? bearerToken = widget._authService.accessToken;
     logger.i("token: $bearerToken");
 
     if (bearerToken.isNotEmpty) {

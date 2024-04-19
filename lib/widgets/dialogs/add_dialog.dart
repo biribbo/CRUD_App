@@ -36,11 +36,27 @@ class AddDialog extends StatelessWidget {
         ),
         ElevatedButton(
           onPressed: () {
-            isToCreate
-                ? method(titleController.text, descriptionController.text,
-                    imageUrlController.text)
-                : method(id, titleController.text, descriptionController.text,
-                    imageUrlController.text);
+            switch (item) {
+              case "Product":
+                isToCreate
+                    ? method(titleController.text, descriptionController.text,
+                        imageUrlController.text)
+                    : method(id, titleController.text,
+                        descriptionController.text, imageUrlController.text);
+                break;
+              case "Comment":
+                isToCreate
+                    ? method(descriptionController.text)
+                    : method(id, descriptionController.text);
+                break;
+              case "Category":
+                isToCreate
+                    ? method(titleController.text)
+                    : method(id, titleController.text);
+                break;
+              default:
+                break;
+            }
             Navigator.pop(context);
           },
           child: const Text(

@@ -11,7 +11,7 @@ class CategoryService {
   final Function reload;
 
   fetchCategory() async {
-    List<Category> result = List.empty();
+    List<Category> result = [];
     if (bearerToken.isNotEmpty) {
       var url = Uri.parse(
           "${ApiConstants.baseUrl}${ApiConstants.categoriesEndpoint}/all");
@@ -21,7 +21,7 @@ class CategoryService {
         if (response.statusCode == 200) {
           var items = json.decode(response.body);
           for (var item in items) {
-            result.add(Category(item['id'], item['name'], item['isDeleted']));
+            result.add(Category(item['id'], item['name'], item['deleted']));
           }
         } else {
           logger.i("Could not load categories ${response.toString()}");
@@ -32,6 +32,7 @@ class CategoryService {
     } else {
       logger.i("Bearer token is null or empty");
     }
+    return result;
   }
 
   void addCategory(String name) async {
@@ -75,14 +76,13 @@ class CategoryService {
   deleteCategory(var id) async {
     var url = Uri.parse(
         "${ApiConstants.baseUrl}${ApiConstants.categoriesEndpoint}/$id");
-    final request = http.Request("DELETE", url);
-    final response = await request.send();
+    var headers = {'Authorization': 'Bearer $bearerToken'};
+    final response = await http.delete(url, headers: headers);
     if (response.statusCode != 200) {
-      logger.i("Error deleting category: ${response.toString()}");
-      return false;
+      logger.i("Error deleting category: ${response.statusCode}");
     } else {
       reload();
-      return true;
+      logger.i("deleted");
     }
   }
 }

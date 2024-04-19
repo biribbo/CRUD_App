@@ -1,16 +1,16 @@
 import 'package:crud_app/classes/product.dart';
-import 'package:crud_app/pages/product_with_comments.dart';
 import 'package:crud_app/widgets/dialogs/add_dialog.dart';
 import 'package:crud_app/service/product_service.dart';
 import 'package:crud_app/theme/colours.dart';
 import 'package:flutter/material.dart';
-import 'package:toastification/toastification.dart';
 
-class IndexCard extends StatelessWidget {
-  const IndexCard(this._productService, {required this.data, super.key});
+class ProductCard extends StatelessWidget {
+  const ProductCard(this._productService,
+      {required this.data, super.key, this.onPressed});
 
   final Product data;
   final ProductService _productService;
+  final Function? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,10 @@ class IndexCard extends StatelessWidget {
           color: Colors.grey,
           iconSize: 24.0,
           onPressed: () {
-            AddDialog(false, "Product", _productService.editProduct, id);
+            showDialog(
+                context: context,
+                builder: ((context) => AddDialog(
+                    false, "Product", _productService.editProduct, id)));
           },
         ),
         IconButton(
@@ -62,12 +65,7 @@ class IndexCard extends StatelessWidget {
             color: Colors.grey,
             iconSize: 24.0,
             onPressed: () {
-              if (!_productService.deleteProduct(id)) {
-                toastification.show(
-                    context: context,
-                    title: const Text("Access denied - admin role needed"),
-                    autoCloseDuration: const Duration(seconds: 5));
-              }
+              _productService.deleteProduct(id);
             }),
       ] else ...[
         const Icon(Icons.delete_outline, color: Colors.red),
@@ -75,18 +73,17 @@ class IndexCard extends StatelessWidget {
         const Text('Deleted',
             style: TextStyle(fontSize: 12, color: Colors.red)),
       ],
-      IconButton(
-        alignment: Alignment.centerRight,
-        icon: const Icon(Icons.arrow_right),
-        color: Colors.grey,
-        iconSize: 24.0,
-        onPressed: () {
-          CommentsPage(
-              accessToken: _productService.bearerToken,
-              id: id,
-              productService: _productService);
-        },
-      ),
+      if (onPressed != null) ...[
+        IconButton(
+          alignment: Alignment.centerRight,
+          icon: const Icon(Icons.arrow_right),
+          color: Colors.grey,
+          iconSize: 24.0,
+          onPressed: () {
+            onPressed!(data);
+          },
+        )
+      ]
     ]);
   }
 }
