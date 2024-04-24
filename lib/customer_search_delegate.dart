@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 class CustomSearchDelegate extends SearchDelegate {
   final String accessToken;
+  final Function onSearch;
 
   CustomSearchDelegate(this.accessToken);
 
@@ -14,7 +15,7 @@ class CustomSearchDelegate extends SearchDelegate {
     return ThemeData(
       colorScheme: const ColorScheme.dark(
         primary: primary,
-        background: Colors.black54, // Background color for the body
+        background: Colors.black54,
       ),
       inputDecorationTheme: const InputDecorationTheme(
         hintStyle: TextStyle(color: Colors.white),
