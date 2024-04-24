@@ -2,11 +2,8 @@ import 'package:crud_app/widgets/pages/search_index.dart';
 import 'package:crud_app/theme/colours.dart';
 import 'package:flutter/material.dart';
 
-//TODO: fix search
-
 class CustomSearchDelegate extends SearchDelegate {
   final String accessToken;
-  final Function onSearch;
 
   CustomSearchDelegate(this.accessToken);
 
@@ -49,8 +46,18 @@ class CustomSearchDelegate extends SearchDelegate {
   }
 
   @override
-  Widget buildResults(BuildContext context) {
-    return SearchPage(accessToken: accessToken, keyword: query);
+  Widget buildResults(BuildContext context) => Container();
+
+  @override
+  void showResults(BuildContext context) {
+    close(context, null);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              SearchPage(accessToken: accessToken, keyword: query)),
+    );
+    super.showResults(context);
   }
 
   @override

@@ -29,12 +29,19 @@ class _SearchPageState extends State<SearchPage> {
     super.initState();
     keyword = widget.keyword;
     productService = ProductService(widget._accessToken, reload);
-    foundProducts = productService.fetchSearchedProduct(keyword);
+    fetchProductsAndLog(null);
+  }
+
+  Future<void> fetchProductsAndLog(int? newPage) async {
+    var data = await productService.fetchSearchedProduct(keyword);
+    setState(() {
+      foundProducts = data;
+    });
   }
 
   void reload() {
     setState(() {
-      foundProducts = productService.fetchSearchedProduct(keyword);
+      fetchProductsAndLog(null);
     });
   }
 
@@ -42,15 +49,37 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     if (foundProducts.contains(null) || isLoading) {
       return const Center(
-          child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(primary),
-      ));
+          child: Text("No products", style: TextStyle(color: white)));
     }
-    return ListView.builder(
-        itemCount: foundProducts.length,
-        itemBuilder: (ctx, index) => CustomCard(
-            data: foundProducts[index],
-            service: productService,
-            item: Item.products));
+    return Scaffold(
+      backgroundColor: primary,
+      appBar: AppBar(
+        backgroundColor: primary,
+        title: Text("Search results for '$keyword'",
+            style: const TextStyle(color: white)),
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: Transform.rotate(
+                angle: 3.14159,
+                child: const Icon(Icons.arrow_forward, color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            );
+          },
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListView.builder(
+            itemCount: foundProducts.length,
+            itemBuilder: (ctx, index) => CustomCard(
+                data: foundProducts[index],
+                service: productService,
+                item: Item.products)),
+      ),
+    );
   }
 }

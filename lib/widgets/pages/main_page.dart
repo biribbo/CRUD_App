@@ -80,46 +80,43 @@ class _MainPageState extends State<MainPage> {
         page = ProductsPage(accessToken: widget._authService.accessToken);
     }
 
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text("Listing $keyword", style: const TextStyle(color: white)),
-          backgroundColor: primary,
-          leading: Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-                icon: const Icon(
-                  Icons.menu,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Listing $keyword", style: const TextStyle(color: white)),
+        backgroundColor: primary,
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(
+                Icons.menu,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.search,
+              color: Colors.white,
+            ),
+            onPressed: () async {
+              await showSearch(
+                context: context,
+                delegate: CustomSearchDelegate(widget._authService.accessToken),
               );
             },
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.search,
-                color: Colors.white,
-              ),
-              onPressed: () async {
-                await showSearch(
-                  context: context,
-                  delegate:
-                      CustomSearchDelegate(widget._authService.accessToken),
-                );
-              },
-            ),
-          ],
-        ),
-        backgroundColor: primary,
-        body: page,
-        drawer: AppDrawer(
-          accessToken: widget._authService.accessToken,
-          navigation: navigation,
-        ),
+        ],
+      ),
+      backgroundColor: primary,
+      body: page,
+      drawer: AppDrawer(
+        accessToken: widget._authService.accessToken,
+        navigation: navigation,
       ),
     );
   }
